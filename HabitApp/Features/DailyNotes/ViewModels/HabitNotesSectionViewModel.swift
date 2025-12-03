@@ -17,6 +17,7 @@ final class HabitNotesSectionViewModel: ObservableObject {
     func load() async {
         do {
             notes = try await noteStorage.notes(for: habit.id)
+            notes.sort { $0.date > $1.date }
         } catch {
             print("Habit note list load error: \(error)")
         }

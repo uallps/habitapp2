@@ -20,6 +20,7 @@ final class NotesListViewModel: ObservableObject {
     func load() async {
         do {
             notes = try await noteStorage.allNotes()
+            notes.sort { $0.date > $1.date }
             habits = try await storageProvider.loadHabits()
             habits.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         } catch {
