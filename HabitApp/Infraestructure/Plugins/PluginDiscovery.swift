@@ -24,7 +24,6 @@ enum PluginDiscovery {
 
         if plugins.isEmpty {
             plugins = [
-                HabitReminderPlugin.self,
                 HabitStreakPlugin.self,
                 HabitCategoryPlugin.self,
                 HabitNotePlugin.self,
@@ -37,16 +36,14 @@ enum PluginDiscovery {
 
     private static func priority(for plugin: FeaturePlugin.Type) -> Int {
         switch plugin {
-        case is HabitReminderPlugin.Type:
-            return 10
         case is HabitStreakPlugin.Type:
-            return 20
+            return 10
         case is HabitCategoryPlugin.Type:
-            return 30
+            return 20
         case is HabitNotePlugin.Type:
-            return 40
+            return 30
         case is HabitStatisticsPlugin.Type:
-            return 50
+            return 40
         default:
             return 100
         }

@@ -10,7 +10,7 @@ final class HabitNotePlugin: DataPlugin, ViewPlugin {
     }
 
     var models: [any PersistentModel.Type] { [HabitNote.self] }
-    var isEnabled: Bool { config.enableDailyNotes && config.storageType == .swiftData }
+    var isEnabled: Bool { config.enableDailyNotes }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }
@@ -38,17 +38,9 @@ final class HabitNotePlugin: DataPlugin, ViewPlugin {
     @MainActor
     @ViewBuilder
     func settingsView() -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle("Notas diarias", isOn: Binding(
-                get: { self.config.enableDailyNotes },
-                set: { self.config.enableDailyNotes = $0 }
-            ))
-            .disabled(config.storageType == .json)
-            if config.storageType == .json {
-                Text("Disponible solo con SwiftData")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
+        Toggle("Notas diarias", isOn: Binding(
+            get: { self.config.enableDailyNotes },
+            set: { self.config.enableDailyNotes = $0 }
+        ))
     }
 }

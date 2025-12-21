@@ -16,7 +16,7 @@ struct HabitApp: App {
     }
 
     private var notesEnabled: Bool {
-        appConfig.enableDailyNotes && appConfig.storageType == .swiftData
+        appConfig.enableDailyNotes
     }
 
     private var statsEnabled: Bool {

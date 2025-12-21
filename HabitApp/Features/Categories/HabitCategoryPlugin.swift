@@ -10,7 +10,7 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
     }
 
     var models: [any PersistentModel.Type] { [HabitCategoryAssignment.self] }
-    var isEnabled: Bool { config.enableCategories && config.storageType == .swiftData }
+    var isEnabled: Bool { config.enableCategories }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }
@@ -38,17 +38,9 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
     @MainActor
     @ViewBuilder
     func settingsView() -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle("Categorías", isOn: Binding(
-                get: { self.config.enableCategories },
-                set: { self.config.enableCategories = $0 }
-            ))
-            .disabled(config.storageType == .json)
-            if config.storageType == .json {
-                Text("Disponible solo con SwiftData")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
+        Toggle("Categorías", isOn: Binding(
+            get: { self.config.enableCategories },
+            set: { self.config.enableCategories = $0 }
+        ))
     }
 }

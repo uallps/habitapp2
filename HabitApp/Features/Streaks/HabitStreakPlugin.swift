@@ -11,7 +11,7 @@ final class HabitStreakPlugin: DataPlugin, ViewPlugin, HabitEventPlugin {
     }
 
     var models: [any PersistentModel.Type] { [HabitStreak.self] }
-    var isEnabled: Bool { config.enableStreaks && config.storageType == .swiftData }
+    var isEnabled: Bool { config.enableStreaks }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }
@@ -65,17 +65,9 @@ final class HabitStreakPlugin: DataPlugin, ViewPlugin, HabitEventPlugin {
     @MainActor
     @ViewBuilder
     func settingsView() -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle("Rachas", isOn: Binding(
-                get: { self.config.enableStreaks },
-                set: { self.config.enableStreaks = $0 }
-            ))
-            .disabled(config.storageType == .json)
-            if config.storageType == .json {
-                Text("Disponible solo con SwiftData")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
+        Toggle("Rachas", isOn: Binding(
+            get: { self.config.enableStreaks },
+            set: { self.config.enableStreaks = $0 }
+        ))
     }
 }

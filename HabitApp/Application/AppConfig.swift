@@ -5,14 +5,10 @@
 //  Created by Codex on 03/12/25.
 //
 import Foundation
-import Combine
 import SwiftUI
 import SwiftData
 
 final class AppConfig: ObservableObject {
-    @AppStorage("enableReminders")
-    var enableReminders: Bool = true
-
     @AppStorage("enableStreaks")
     var enableStreaks: Bool = true
 
@@ -24,9 +20,6 @@ final class AppConfig: ObservableObject {
 
     @AppStorage("enableStatistics")
     var enableStatistics: Bool = true
-
-    @AppStorage("storageType")
-    var storageType: StorageType = .swiftData
 
     private var plugins: [FeaturePlugin] = []
 
@@ -56,18 +49,6 @@ final class AppConfig: ObservableObject {
     }()
 
     var storageProvider: StorageProvider {
-        switch storageType {
-        case .swiftData:
-            return swiftDataProvider
-        case .json:
-            return HabitJSONStorageProvider.shared
-        }
+        swiftDataProvider
     }
-}
-
-enum StorageType: String, CaseIterable, Identifiable {
-    case swiftData = "SwiftData"
-    case json = "JSON"
-
-    var id: String { rawValue }
 }

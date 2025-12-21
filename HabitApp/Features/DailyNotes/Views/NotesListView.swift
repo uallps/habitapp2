@@ -1,7 +1,6 @@
 ﻿import SwiftUI
 
 struct NotesListView: View {
-    @EnvironmentObject private var appConfig: AppConfig
     @StateObject private var viewModel: NotesListViewModel
 
     init(storageProvider: StorageProvider, noteStorage: HabitNoteStorage = HabitNoteSwiftDataStorage()) {
@@ -10,59 +9,53 @@ struct NotesListView: View {
 
     var body: some View {
         NavigationStack {
-            if appConfig.storageType != .swiftData {
-                Text("Las notas requieren almacenamiento SwiftData")
-                    .foregroundColor(.secondary)
-                    .padding()
-            } else {
-                List {
-                    ForEach(viewModel.notes) { note in
-                        Button {
-                            viewModel.edit(note: note)
+            List {
+                ForEach(viewModel.notes) { note in
+                    Button {
+                        viewModel.edit(note: note)
+                    } label: {
+                        noteRow(note)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            delete(note: note)
                         } label: {
-                            noteRow(note)
-                        }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                delete(note: note)
-                            } label: {
-                                Label("Eliminar", systemImage: "trash")
-                            }
-                        }
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                delete(note: note)
-                            } label: {
-                                Label("Eliminar", systemImage: "trash")
-                            }
+                            Label("Eliminar", systemImage: "trash")
                         }
                     }
-                    .onDelete { indexSet in
-                        Task { await viewModel.deleteNotes(at: indexSet) }
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            delete(note: note)
+                        } label: {
+                            Label("Eliminar", systemImage: "trash")
+                        }
                     }
                 }
+                .onDelete { indexSet in
+                    Task { await viewModel.deleteNotes(at: indexSet) }
+                }
+            }
 #if os(iOS)
-                .listStyle(.insetGrouped)
+            .listStyle(.insetGrouped)
 #else
-                .listStyle(.inset)
+            .listStyle(.inset)
 #endif
-                .navigationTitle("Notas")
-                .toolbar {
-                    Button(action: viewModel.presentNewNote) {
-                        Label("Nueva nota", systemImage: "plus")
-                    }
-                    .disabled(viewModel.habits.isEmpty)
+            .navigationTitle("Notas")
+            .toolbar {
+                Button(action: viewModel.presentNewNote) {
+                    Label("Nueva nota", systemImage: "plus")
                 }
-                .task { await viewModel.load() }
-                .sheet(isPresented: $viewModel.isPresentingEditor) {
-                    NoteEditorView(
-                        draft: $viewModel.draft,
-                        habits: viewModel.habits,
-                        allowsHabitSelection: true,
-                        onCancel: { viewModel.isPresentingEditor = false },
-                        onSave: { Task { await viewModel.saveDraft() } }
-                    )
-                }
+                .disabled(viewModel.habits.isEmpty)
+            }
+            .task { await viewModel.load() }
+            .sheet(isPresented: $viewModel.isPresentingEditor) {
+                NoteEditorView(
+                    draft: $viewModel.draft,
+                    habits: viewModel.habits,
+                    allowsHabitSelection: true,
+                    onCancel: { viewModel.isPresentingEditor = false },
+                    onSave: { Task { await viewModel.saveDraft() } }
+                )
             }
         }
     }
@@ -88,5 +81,4 @@ struct NotesListView: View {
 
 #Preview {
     NotesListView(storageProvider: MockStorageProvider())
-        .environmentObject(AppConfig())
 }
