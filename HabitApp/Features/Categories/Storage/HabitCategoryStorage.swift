@@ -1,12 +1,14 @@
 ﻿import Foundation
 import SwiftData
 
+@MainActor
 protocol HabitCategoryStorage {
     func category(for habitId: UUID) async throws -> HabitCategoryAssignment?
     func save(_ assignment: HabitCategoryAssignment) async throws
     func delete(for habitId: UUID) async throws
 }
 
+@MainActor
 final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     private var context: ModelContext? { SwiftDataContext.shared }
 

@@ -10,9 +10,9 @@ final class HabitNoteViewModel: ObservableObject {
     private let habit: Habit
     private let storage: HabitNoteStorage
 
-    init(habit: Habit, storage: HabitNoteStorage = HabitNoteSwiftDataStorage()) {
+    init(habit: Habit, storage: HabitNoteStorage? = nil) {
         self.habit = habit
-        self.storage = storage
+        self.storage = storage ?? HabitNoteSwiftDataStorage()
         Task { await loadNote() }
     }
 

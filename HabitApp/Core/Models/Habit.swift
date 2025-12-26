@@ -13,12 +13,12 @@ final class Habit: Identifiable, Codable {
         case id, name, frequency, isCompletedToday, lastCompletionDate, createdAt
     }
 
-    let id: UUID
+    private(set) var id: UUID
     var name: String
     var frequency: HabitFrequency
     var isCompletedToday: Bool
     var lastCompletionDate: Date?
-    let createdAt: Date
+    private(set) var createdAt: Date
 
     init(name: String, frequency: HabitFrequency = .daily, isCompletedToday: Bool = false, lastCompletionDate: Date? = nil, createdAt: Date = Date()) {
         self.id = UUID()

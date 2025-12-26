@@ -1,8 +1,9 @@
-﻿final class MockStorageProvider: StorageProvider {
+﻿@MainActor
+final class MockStorageProvider: StorageProvider {
     private var storedHabits: [Habit]
 
-    init(initialHabits: [Habit] = HabitSamples.defaults) {
-        self.storedHabits = initialHabits
+    init(initialHabits: [Habit]? = nil) {
+        self.storedHabits = initialHabits ?? HabitSamples.defaults
     }
 
     func loadHabits() async throws -> [Habit] {

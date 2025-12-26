@@ -3,7 +3,7 @@
 struct NotesListView: View {
     @StateObject private var viewModel: NotesListViewModel
 
-    init(storageProvider: StorageProvider, noteStorage: HabitNoteStorage = HabitNoteSwiftDataStorage()) {
+    init(storageProvider: StorageProvider, noteStorage: HabitNoteStorage? = nil) {
         _viewModel = StateObject(wrappedValue: NotesListViewModel(storageProvider: storageProvider, noteStorage: noteStorage))
     }
 

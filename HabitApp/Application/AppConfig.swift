@@ -5,6 +5,7 @@
 //  Created by Codex on 03/12/25.
 //
 import Foundation
+import Combine
 import SwiftUI
 import SwiftData
 
@@ -20,6 +21,9 @@ final class AppConfig: ObservableObject {
 
     @AppStorage("enableStatistics")
     var enableStatistics: Bool = true
+
+    @AppStorage("isPremium")
+    var isPremium: Bool = false
 
     private var plugins: [FeaturePlugin] = []
 

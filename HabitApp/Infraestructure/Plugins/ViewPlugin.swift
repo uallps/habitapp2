@@ -1,5 +1,6 @@
 ﻿import SwiftUI
 
+@MainActor
 protocol ViewPlugin: FeaturePlugin {
     associatedtype HabitRowContent: View
     associatedtype HabitDetailContent: View

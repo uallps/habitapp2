@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+@MainActor
 protocol HabitNoteStorage {
     func allNotes() async throws -> [HabitNote]
     func delete(_ note: HabitNote) async throws
@@ -10,6 +11,7 @@ protocol HabitNoteStorage {
     func deleteNotes(for habitId: UUID) async throws
 }
 
+@MainActor
 final class HabitNoteSwiftDataStorage: HabitNoteStorage {
     private var context: ModelContext? { SwiftDataContext.shared }
 

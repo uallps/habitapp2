@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+@MainActor
 final class HabitStreakPlugin: DataPlugin, ViewPlugin, HabitEventPlugin {
     private let config: AppConfig
     private let calendar = Calendar.current
@@ -11,7 +12,7 @@ final class HabitStreakPlugin: DataPlugin, ViewPlugin, HabitEventPlugin {
     }
 
     var models: [any PersistentModel.Type] { [HabitStreak.self] }
-    var isEnabled: Bool { config.enableStreaks }
+    var isEnabled: Bool { config.isPremium && config.enableStreaks }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }
@@ -65,9 +66,17 @@ final class HabitStreakPlugin: DataPlugin, ViewPlugin, HabitEventPlugin {
     @MainActor
     @ViewBuilder
     func settingsView() -> some View {
-        Toggle("Rachas", isOn: Binding(
-            get: { self.config.enableStreaks },
-            set: { self.config.enableStreaks = $0 }
-        ))
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle("Rachas", isOn: Binding(
+                get: { self.config.enableStreaks },
+                set: { self.config.enableStreaks = $0 }
+            ))
+            .disabled(!config.isPremium)
+            if !config.isPremium {
+                Text("Disponible solo en Premium")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }

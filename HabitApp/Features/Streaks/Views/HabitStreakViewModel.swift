@@ -8,9 +8,9 @@ final class HabitStreakViewModel: ObservableObject {
     private let habit: Habit
     private let storage: HabitStreakStorage
 
-    init(habit: Habit, storage: HabitStreakStorage = HabitStreakSwiftDataStorage()) {
+    init(habit: Habit, storage: HabitStreakStorage? = nil) {
         self.habit = habit
-        self.storage = storage
+        self.storage = storage ?? HabitStreakSwiftDataStorage()
         self.streak = HabitStreak(habitId: habit.id)
         Task { await load() }
     }
@@ -27,4 +27,3 @@ final class HabitStreakViewModel: ObservableObject {
         "Racha: \(streak.current) · Mejor: \(streak.best)"
     }
 }
-

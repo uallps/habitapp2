@@ -5,7 +5,7 @@ import SwiftData
 final class HabitNote: Identifiable, Codable {
     private enum CodingKeys: CodingKey { case id, habitId, date, text, dayIdentifier }
 
-    let id: UUID
+    private(set) var id: UUID
     var habitId: UUID
     var date: Date
     var text: String

@@ -8,9 +8,9 @@ final class HabitCategoryViewModel: ObservableObject {
     private let habit: Habit
     private let storage: HabitCategoryStorage
 
-    init(habit: Habit, storage: HabitCategoryStorage = HabitCategorySwiftDataStorage()) {
+    init(habit: Habit, storage: HabitCategoryStorage? = nil) {
         self.habit = habit
-        self.storage = storage
+        self.storage = storage ?? HabitCategorySwiftDataStorage()
         Task { await load() }
     }
 
@@ -44,4 +44,3 @@ final class HabitCategoryViewModel: ObservableObject {
         assignment?.category
     }
 }
-

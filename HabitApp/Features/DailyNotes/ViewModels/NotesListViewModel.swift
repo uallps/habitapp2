@@ -12,9 +12,9 @@ final class NotesListViewModel: ObservableObject {
     private let storageProvider: StorageProvider
     private var editingNote: HabitNote?
 
-    init(storageProvider: StorageProvider, noteStorage: HabitNoteStorage = HabitNoteSwiftDataStorage()) {
+    init(storageProvider: StorageProvider, noteStorage: HabitNoteStorage? = nil) {
         self.storageProvider = storageProvider
-        self.noteStorage = noteStorage
+        self.noteStorage = noteStorage ?? HabitNoteSwiftDataStorage()
     }
 
     func load() async {

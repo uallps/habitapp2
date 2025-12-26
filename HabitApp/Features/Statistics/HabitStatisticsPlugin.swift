@@ -3,6 +3,7 @@ import SwiftData
 import SwiftUI
 import Combine
 
+@MainActor
 final class HabitStatisticsPlugin: ViewPlugin {
     private let config: AppConfig
 
@@ -11,7 +12,7 @@ final class HabitStatisticsPlugin: ViewPlugin {
     }
 
     var models: [any PersistentModel.Type] { [] }
-    var isEnabled: Bool { config.enableStatistics }
+    var isEnabled: Bool { config.isPremium && config.enableStatistics }
 
     @MainActor
     @ViewBuilder

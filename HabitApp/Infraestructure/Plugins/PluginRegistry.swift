@@ -2,6 +2,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 final class PluginRegistry {
     static let shared = PluginRegistry()
 
@@ -53,21 +54,21 @@ final class PluginRegistry {
 
     func getHabitRowViews(for habit: Habit) -> [AnyView] {
         pluginInstances
-            .compactMap { $0 as? ViewPlugin }
+            .compactMap { $0 as? any ViewPlugin }
             .filter { $0.isEnabled }
             .map { AnyView($0.habitRowView(for: habit)) }
     }
 
     func getHabitDetailViews(for habit: Binding<Habit>) -> [AnyView] {
         pluginInstances
-            .compactMap { $0 as? ViewPlugin }
+            .compactMap { $0 as? any ViewPlugin }
             .filter { $0.isEnabled }
             .map { AnyView($0.habitDetailView(for: habit)) }
     }
 
     func getPluginSettingsViews() -> [AnyView] {
         pluginInstances
-            .compactMap { $0 as? ViewPlugin }
+            .compactMap { $0 as? any ViewPlugin }
             .map { AnyView($0.settingsView()) }
     }
 

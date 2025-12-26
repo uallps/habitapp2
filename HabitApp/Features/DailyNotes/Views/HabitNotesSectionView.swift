@@ -7,7 +7,7 @@ struct HabitNotesSectionView: View {
 
     private let habit: Habit
 
-    init(habit: Habit, noteStorage: HabitNoteStorage = HabitNoteSwiftDataStorage()) {
+    init(habit: Habit, noteStorage: HabitNoteStorage? = nil) {
         self.habit = habit
         _viewModel = StateObject(wrappedValue: HabitNotesSectionViewModel(habit: habit, noteStorage: noteStorage))
     }

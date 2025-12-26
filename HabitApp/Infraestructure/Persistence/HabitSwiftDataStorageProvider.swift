@@ -5,6 +5,7 @@ final class SwiftDataContext {
     static var shared: ModelContext?
 }
 
+@MainActor
 final class HabitSwiftDataStorageProvider: StorageProvider {
     private let modelContainer: ModelContainer
     private let context: ModelContext

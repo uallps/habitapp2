@@ -33,7 +33,7 @@ struct HabitDetailView: View {
         .onDisappear {
             onSave?()
         }
-        .onChange(of: habit.isCompletedToday) { _ in
+        .onChange(of: habit.isCompletedToday) { _, _ in
             Task { await PluginRegistry.shared.notifyHabitCompletion(habit) }
         }
     }

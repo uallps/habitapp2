@@ -5,7 +5,7 @@ import SwiftData
 final class HabitCategoryAssignment: Identifiable, Codable {
     private enum CodingKeys: CodingKey { case id, habitId, category }
 
-    let id: UUID
+    private(set) var id: UUID
     var habitId: UUID
     var category: HabitCategory
 

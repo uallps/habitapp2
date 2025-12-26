@@ -5,7 +5,7 @@ import SwiftData
 final class HabitStreak: Identifiable, Codable {
     private enum CodingKeys: CodingKey { case id, habitId, current, best, lastCompletion }
 
-    let id: UUID
+    private(set) var id: UUID
     var habitId: UUID
     var current: Int
     var best: Int

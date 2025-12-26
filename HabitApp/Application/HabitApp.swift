@@ -16,11 +16,11 @@ struct HabitApp: App {
     }
 
     private var notesEnabled: Bool {
-        appConfig.enableDailyNotes
+        appConfig.isPremium && appConfig.enableDailyNotes
     }
 
     private var statsEnabled: Bool {
-        appConfig.enableStatistics
+        appConfig.isPremium && appConfig.enableStatistics
     }
 
     private var sidebarItems: [SidebarItem] {

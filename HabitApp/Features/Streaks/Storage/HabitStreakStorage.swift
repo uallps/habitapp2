@@ -1,12 +1,14 @@
 ﻿import Foundation
 import SwiftData
 
+@MainActor
 protocol HabitStreakStorage {
     func streak(for habitId: UUID) async throws -> HabitStreak
     func save(_ streak: HabitStreak) async throws
     func delete(for habitId: UUID) async throws
 }
 
+@MainActor
 final class HabitStreakSwiftDataStorage: HabitStreakStorage {
     private var context: ModelContext? { SwiftDataContext.shared }
 
