@@ -6,6 +6,7 @@ struct StatsQuickCalendarView: View {
     let isLoading: Bool
     let calendar: Calendar
     let onMoveMonth: (Int) -> Void
+    @State private var selectedDate: Date = Date()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -39,13 +40,24 @@ struct StatsQuickCalendarView: View {
                 MonthlyCalendarPreviewView(
                     interval: recap.interval,
                     dayStats: recap.dayStats,
-                    calendar: calendar
+                    calendar: calendar,
+                    selectedDate: $selectedDate
                 )
+
+                if let detail = dayDetail(from: recap) {
+                    DayDetailView(detail: detail, calendar: calendar)
+                }
             } else {
                 Text("Sin datos para mostrar")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+        }
+        .onAppear {
+            selectedDate = monthDate
+        }
+        .onChange(of: monthDate) { _, newValue in
+            selectedDate = newValue
         }
     }
 
@@ -56,12 +68,22 @@ struct StatsQuickCalendarView: View {
         formatter.dateFormat = "LLLL yyyy"
         return formatter.string(from: monthDate)
     }
+
+    private func dayDetail(from recap: StatsRecap) -> StatsDayDetail? {
+        let day = calendar.startOfDay(for: selectedDate)
+        guard let dayStat = recap.dayStats.first(where: { calendar.isDate($0.date, inSameDayAs: day) }) else {
+            return nil
+        }
+        let statuses = recap.dayHabitStatuses[calendar.startOfDay(for: day)] ?? []
+        return StatsDayDetail(date: day, completed: dayStat.completed, expected: dayStat.expected, habits: statuses)
+    }
 }
 
 private struct MonthlyCalendarPreviewView: View {
     let interval: DateInterval
     let dayStats: [StatsDayStat]
     let calendar: Calendar
+    @Binding var selectedDate: Date
 
     private var dayLookup: [Date: StatsDayStat] {
         Dictionary(uniqueKeysWithValues: dayStats.map { (calendar.startOfDay(for: $0.date), $0) })
@@ -123,11 +145,21 @@ private struct MonthlyCalendarPreviewView: View {
     private func dayCell(for date: Date) -> some View {
         let day = calendar.startOfDay(for: date)
         let stat = dayLookup[day]
-        Text("\(calendar.component(.day, from: day))")
-            .font(.caption)
-            .frame(maxWidth: .infinity, minHeight: 32)
-            .background(backgroundColor(for: stat))
-            .cornerRadius(6)
+        let isSelected = calendar.isDate(selectedDate, inSameDayAs: day)
+        Button {
+            selectedDate = day
+        } label: {
+            Text("\(calendar.component(.day, from: day))")
+                .font(.caption)
+                .frame(maxWidth: .infinity, minHeight: 32)
+                .background(backgroundColor(for: stat))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 1)
+                )
+                .cornerRadius(6)
+        }
+        .buttonStyle(.plain)
     }
 
     private func backgroundColor(for stat: StatsDayStat?) -> Color {
