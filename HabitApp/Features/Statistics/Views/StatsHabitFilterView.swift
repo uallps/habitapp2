@@ -9,35 +9,20 @@ struct StatsHabitOption: Identifiable, Hashable {
 struct StatsHabitFilterView: View {
     let habits: [StatsHabitOption]
     @Binding var selectedHabitId: UUID?
-    @Binding var showArchived: Bool
 
     var body: some View {
         let activeHabits = habits.filter { !$0.isArchived }
         let archivedHabits = habits.filter { $0.isArchived }
-        let visibleHabits = activeHabits + (showArchived ? archivedHabits : [])
+        let visibleHabits = activeHabits + archivedHabits
 
-        VStack(alignment: .leading, spacing: 6) {
-            Picker("Habito", selection: $selectedHabitId) {
-                Text("Todos").tag(UUID?.none)
-                ForEach(visibleHabits) { habit in
-                    Text(habitLabel(for: habit))
-                        .tag(Optional(habit.id))
-                }
-            }
-            .pickerStyle(.menu)
-
-            if !archivedHabits.isEmpty {
-                Toggle("Mostrar archivados", isOn: $showArchived)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+        Picker("Habito", selection: $selectedHabitId) {
+            Text("Todos").tag(UUID?.none)
+            ForEach(visibleHabits) { habit in
+                Text(habitLabel(for: habit))
+                    .tag(Optional(habit.id))
             }
         }
-        .onChange(of: showArchived) { _, newValue in
-            guard !newValue, let selected = selectedHabitId else { return }
-            if archivedHabits.contains(where: { $0.id == selected }) {
-                selectedHabitId = nil
-            }
-        }
+        .pickerStyle(.menu)
     }
 
     private func habitLabel(for habit: StatsHabitOption) -> String {

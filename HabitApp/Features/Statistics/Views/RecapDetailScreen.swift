@@ -4,7 +4,6 @@ struct RecapDetailScreen: View {
     @StateObject private var viewModel: RecapDetailViewModel
     private let calendar: Calendar
     @State private var selectedHabitId: UUID? = nil
-    @State private var showArchivedHabits: Bool = false
 
     init(period: StatsPeriod, referenceDate: Date, dependencies: StatisticsDependencies) {
         self.calendar = dependencies.calendar
@@ -156,8 +155,7 @@ struct RecapDetailScreen: View {
                                         isArchived: stat.isArchived
                                     )
                                 },
-                                selectedHabitId: $selectedHabitId,
-                                showArchived: $showArchivedHabits
+                                selectedHabitId: $selectedHabitId
                             )
                         }
                         MonthlyCalendarView(
@@ -182,15 +180,15 @@ struct RecapDetailScreen: View {
 
     @ViewBuilder
     private func streaksView(_ recap: StatsRecap) -> some View {
-        GroupBox("Rachas") {
+        GroupBox("Racha perfecta (global)") {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text("Racha actual")
+                    Text("Racha perfecta actual")
                     Spacer()
                     Text("\(recap.currentStreak) dias")
                 }
                 HStack {
-                    Text("Mejor racha")
+                    Text("Mejor racha perfecta")
                     Spacer()
                     Text("\(recap.bestStreak) dias")
                 }
@@ -215,10 +213,10 @@ struct RecapDetailScreen: View {
     @ViewBuilder
     private func annualStreaksView(_ recap: StatsRecap) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Mejores rachas del ano")
+            Text("Mejores rachas del año")
                 .font(.headline)
             if recap.annualTopStreaks.isEmpty {
-                Text("Sin rachas registradas para este ano")
+                Text("Sin rachas registradas para este año")
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {

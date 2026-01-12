@@ -10,9 +10,6 @@ import SwiftUI
 import SwiftData
 
 final class AppConfig: ObservableObject {
-    @AppStorage("enableStreaks")
-    var enableStreaks: Bool = true
-
     @AppStorage("enableDailyNotes")
     var enableDailyNotes: Bool = false
 

@@ -101,7 +101,7 @@ struct StatsHighlightBuilder {
             case .monthly:
                 return "En curso: mes perfecto hasta hoy"
             case .yearly:
-                return "En curso: ano perfecto hasta hoy"
+                return "En curso: año perfecto hasta hoy"
             }
         }
         if rate == 0, expected > 0 {
@@ -116,7 +116,7 @@ struct StatsHighlightBuilder {
             case .monthly:
                 return "En curso: buen ritmo este mes"
             case .yearly:
-                return "En curso: buen ritmo este ano"
+                return "En curso: buen ritmo este año"
             }
         }
         if rate > 0, rate < 0.5 {
@@ -128,7 +128,7 @@ struct StatsHighlightBuilder {
             case .monthly:
                 return "En curso: mes flojo, aun hay tiempo"
             case .yearly:
-                return "En curso: ano flojo, aun hay tiempo"
+                return "En curso: año flojo, aun hay tiempo"
             }
         }
         switch period {
@@ -139,7 +139,7 @@ struct StatsHighlightBuilder {
         case .monthly:
             return "En curso: ritmo estable este mes"
         case .yearly:
-            return "En curso: ritmo estable este ano"
+            return "En curso: ritmo estable este año"
         }
     }
 
@@ -152,7 +152,7 @@ struct StatsHighlightBuilder {
         case .monthly:
             return type == .perfect ? "Mes perfecto" : type == .good ? "Buen mes" : "Mes flojo"
         case .yearly:
-            return type == .perfect ? "Ano perfecto" : type == .good ? "Buen ano" : "Ano flojo"
+            return type == .perfect ? "Año perfecto" : type == .good ? "Buen año" : "Año flojo"
         }
     }
 }

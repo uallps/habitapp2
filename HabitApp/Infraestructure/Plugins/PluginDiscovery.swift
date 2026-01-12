@@ -15,9 +15,6 @@ enum PluginDiscovery {
                 let className = NSStringFromClass(candidate)
                 guard className.hasPrefix(executableName) else { continue }
                 if let pluginType = candidate as? FeaturePlugin.Type {
-                    if pluginType is HabitStreakPlugin.Type {
-                        continue
-                    }
                     plugins.append(pluginType)
                 }
             }

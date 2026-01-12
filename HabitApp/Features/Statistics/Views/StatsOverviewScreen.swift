@@ -4,7 +4,6 @@ struct StatsOverviewScreen: View {
     @StateObject private var viewModel: StatsOverviewViewModel
     private let dependencies: StatisticsDependencies
     @State private var quickViewSelectedHabitId: UUID? = nil
-    @State private var showArchivedInQuickView: Bool = false
 
     init(dependencies: StatisticsDependencies) {
         self.dependencies = dependencies
@@ -102,8 +101,7 @@ struct StatsOverviewScreen: View {
                                     isArchived: habit.archivedAt != nil
                                 )
                             },
-                            selectedHabitId: $quickViewSelectedHabitId,
-                            showArchived: $showArchivedInQuickView
+                            selectedHabitId: $quickViewSelectedHabitId
                         )
                     }
 
@@ -140,7 +138,7 @@ private struct StatsSummaryCard: View {
                 Text(rateText)
             }
             HStack {
-                Text("Racha actual")
+                Text("Racha perfecta (global)")
                 Spacer()
                 Text("\(recap.currentStreak) dias")
             }

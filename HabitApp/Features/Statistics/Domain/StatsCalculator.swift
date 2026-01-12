@@ -40,6 +40,8 @@ final class StatsCalculator {
         let previousInterval = period.previousInterval(from: referenceDate, calendar: calendar)
         let previousMetrics = buildMetrics(interval: previousInterval, habits: habits, completionMap: completionMap)
         let monthExtremes = period == .yearly ? monthExtremes(from: highlightMetrics.dayStats) : (nil, nil)
+        let streakMetrics = isCurrentPeriod ? highlightMetrics : metrics
+        let finalHabitStats = mergeHabitStreaks(base: metrics.habitStats, streakSource: streakMetrics.habitStats)
 
         let comparison = makeComparison(current: metrics, previous: previousMetrics)
         let highlights = highlightBuilder.highlights(
@@ -73,14 +75,14 @@ final class StatsCalculator {
             habitsWithCompletionCount: metrics.habitsWithCompletionCount,
             habitsNeverCompletedCount: metrics.habitsNeverCompletedCount,
             dayStats: metrics.dayStats,
-            habitStats: metrics.habitStats,
+            habitStats: finalHabitStats,
             dayHabitStatuses: metrics.dayHabitStatuses,
             bestWeekday: metrics.bestWeekday,
             worstWeekday: metrics.worstWeekday,
             bestMonthName: monthExtremes.0,
             worstMonthName: monthExtremes.1,
-            currentStreak: metrics.currentStreak,
-            bestStreak: metrics.bestStreak,
+            currentStreak: streakMetrics.currentStreak,
+            bestStreak: streakMetrics.bestStreak,
             comparison: comparison,
             annualTopStreaks: annualTopStreaks,
             highlights: highlights,
@@ -369,6 +371,27 @@ final class StatsCalculator {
             deltaCompleted: deltaCompleted,
             trendLabel: trendLabel
         )
+    }
+
+    private func mergeHabitStreaks(
+        base: [StatsHabitStat],
+        streakSource: [StatsHabitStat]
+    ) -> [StatsHabitStat] {
+        let streakMap = Dictionary(uniqueKeysWithValues: streakSource.map { ($0.habitId, ($0.currentStreak, $0.bestStreak)) })
+        return base.map { stat in
+            guard let streak = streakMap[stat.habitId] else { return stat }
+            return StatsHabitStat(
+                habitId: stat.habitId,
+                name: stat.name,
+                isArchived: stat.isArchived,
+                completed: stat.completed,
+                expected: stat.expected,
+                rate: stat.rate,
+                badge: stat.badge,
+                currentStreak: streak.0,
+                bestStreak: streak.1
+            )
+        }
     }
 
     private func topYearlyStreaks(
