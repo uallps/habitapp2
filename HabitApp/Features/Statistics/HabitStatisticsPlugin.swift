@@ -59,13 +59,13 @@ final class HabitStatisticsPlugin: ViewPlugin, TabPlugin, DataPlugin, HabitEvent
     @MainActor
     @ViewBuilder
     func habitRowView(for habit: Habit) -> some View {
-        EmptyView()
+        HabitStreakRowView(habit: habit, dependencies: config.statisticsDependencies)
     }
 
     @MainActor
     @ViewBuilder
     func habitDetailView(for habit: Binding<Habit>) -> some View {
-        EmptyView()
+        HabitStreakDetailSummaryView(habit: habit.wrappedValue, dependencies: config.statisticsDependencies)
     }
 
     @MainActor

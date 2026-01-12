@@ -394,6 +394,19 @@ final class StatsCalculator {
         }
     }
 
+    func habitStreak(
+        for habit: StatsHabitSnapshot,
+        completionMap: [UUID: [Date: Int]],
+        through referenceDate: Date
+    ) -> (current: Int, best: Int) {
+        let startDay = calendar.startOfDay(for: habit.createdAt)
+        let endDay = calendar.startOfDay(for: referenceDate)
+        let endExclusive = calendar.date(byAdding: .day, value: 1, to: endDay) ?? endDay
+        let interval = DateInterval(start: startDay, end: endExclusive)
+        let stats = scheduledDayStats(for: habit, interval: interval, completionMap: completionMap)
+        return calculateStreaks(from: stats)
+    }
+
     private func topYearlyStreaks(
         interval: DateInterval,
         referenceDate: Date,
