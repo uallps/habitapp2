@@ -27,16 +27,31 @@ final class StatsCalculator {
     ) -> StatsRecap {
         let interval = period.interval(containing: referenceDate, calendar: calendar)
         let metrics = buildMetrics(interval: interval, habits: habits, completionMap: completionMap)
+        let isCurrentPeriod = period.isCurrent(interval: interval, calendar: calendar, relativeTo: Date())
+        let highlightMetrics = highlightMetrics(
+            period: period,
+            referenceDate: referenceDate,
+            interval: interval,
+            habits: habits,
+            completionMap: completionMap,
+            fallback: metrics,
+            isCurrent: isCurrentPeriod
+        )
         let previousInterval = period.previousInterval(from: referenceDate, calendar: calendar)
         let previousMetrics = buildMetrics(interval: previousInterval, habits: habits, completionMap: completionMap)
+        let monthExtremes = period == .yearly ? monthExtremes(from: highlightMetrics.dayStats) : (nil, nil)
 
         let comparison = makeComparison(current: metrics, previous: previousMetrics)
         let highlights = highlightBuilder.highlights(
-            completed: metrics.completedTotal,
-            expected: metrics.expectedTotal,
-            completionRate: metrics.completionRate,
-            bestWeekday: metrics.bestWeekday,
-            topHabit: metrics.topHabitName
+            period: period,
+            isCurrent: isCurrentPeriod,
+            completed: highlightMetrics.completedTotal,
+            expected: highlightMetrics.expectedTotal,
+            completionRate: highlightMetrics.completionRate,
+            bestWeekday: highlightMetrics.bestWeekday,
+            topHabit: highlightMetrics.topHabitName,
+            bestMonthName: monthExtremes.0,
+            worstMonthName: monthExtremes.1
         )
 
         return StatsRecap(
@@ -53,12 +68,34 @@ final class StatsCalculator {
             dayHabitStatuses: metrics.dayHabitStatuses,
             bestWeekday: metrics.bestWeekday,
             worstWeekday: metrics.worstWeekday,
+            bestMonthName: monthExtremes.0,
+            worstMonthName: monthExtremes.1,
             currentStreak: metrics.currentStreak,
             bestStreak: metrics.bestStreak,
             comparison: comparison,
             highlights: highlights,
             primaryHighlight: highlights.first ?? "Sin datos aplicables para este periodo"
         )
+    }
+
+    private func highlightMetrics(
+        period: StatsPeriod,
+        referenceDate: Date,
+        interval: DateInterval,
+        habits: [StatsHabitSnapshot],
+        completionMap: [UUID: [Date: Int]],
+        fallback: StatsMetrics,
+        isCurrent: Bool
+    ) -> StatsMetrics {
+        guard isCurrent else { return fallback }
+        let endOfReference = calendar.date(
+            byAdding: .day,
+            value: 1,
+            to: calendar.startOfDay(for: referenceDate)
+        ) ?? interval.end
+        let highlightEnd = min(endOfReference, interval.end)
+        let highlightInterval = DateInterval(start: interval.start, end: highlightEnd)
+        return buildMetrics(interval: highlightInterval, habits: habits, completionMap: completionMap)
     }
 
     private func buildMetrics(
@@ -305,6 +342,46 @@ final class StatsCalculator {
             deltaCompleted: deltaCompleted,
             trendLabel: trendLabel
         )
+    }
+
+    private func monthExtremes(from dayStats: [StatsDayStat]) -> (String?, String?) {
+        var monthlyTotals: [Int: (completed: Int, expected: Int)] = [:]
+        for stat in dayStats {
+            let month = calendar.component(.month, from: stat.date)
+            let current = monthlyTotals[month] ?? (0, 0)
+            monthlyTotals[month] = (current.completed + stat.completed, current.expected + stat.expected)
+        }
+
+        let candidates = monthlyTotals.filter { $0.value.expected > 0 }
+        guard !candidates.isEmpty else { return (nil, nil) }
+
+        let best = candidates.max { lhs, rhs in
+            let lhsRate = Double(lhs.value.completed) / Double(lhs.value.expected)
+            let rhsRate = Double(rhs.value.completed) / Double(rhs.value.expected)
+            return lhsRate < rhsRate
+        }
+
+        let worst = candidates.min { lhs, rhs in
+            let lhsRate = Double(lhs.value.completed) / Double(lhs.value.expected)
+            let rhsRate = Double(rhs.value.completed) / Double(rhs.value.expected)
+            return lhsRate < rhsRate
+        }
+
+        let monthSymbols = calendar.monthSymbols
+        let bestName = best.flatMap { monthSymbols[safe: $0.key - 1] }
+        let worstName = worst.flatMap { monthSymbols[safe: $0.key - 1] }
+
+        if best?.key == worst?.key {
+            return (bestName, nil)
+        }
+        return (bestName, worstName)
+    }
+}
+
+private extension Array where Element == String {
+    subscript(safe index: Int) -> String? {
+        guard indices.contains(index) else { return nil }
+        return self[index]
     }
 }
 

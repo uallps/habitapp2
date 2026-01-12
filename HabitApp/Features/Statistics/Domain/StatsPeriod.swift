@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 
 enum StatsPeriod: String, CaseIterable, Identifiable {
     case daily
@@ -37,5 +36,10 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
         let current = interval(containing: referenceDate, calendar: calendar)
         let offset = calendar.date(byAdding: calendarComponent, value: -1, to: current.start) ?? referenceDate
         return interval(containing: offset, calendar: calendar)
+    }
+
+    func isCurrent(interval: DateInterval, calendar: Calendar, relativeTo date: Date = Date()) -> Bool {
+        guard let current = calendar.dateInterval(of: calendarComponent, for: date) else { return false }
+        return calendar.isDate(interval.start, inSameDayAs: current.start)
     }
 }

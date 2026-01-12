@@ -75,6 +75,9 @@ struct RecapDetailScreen: View {
             Text(StatsDateFormatter.rangeText(for: recap.period, interval: recap.interval, calendar: calendar))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+            Text(statusLabel(for: recap))
+                .font(.caption)
+                .foregroundColor(statusColor(for: recap))
             HStack(alignment: .firstTextBaseline) {
                 Text(rateText(for: recap))
                     .font(.largeTitle)
@@ -187,6 +190,14 @@ struct RecapDetailScreen: View {
     private func rateText(for recap: StatsRecap) -> String {
         guard let rate = recap.completionRate else { return "-" }
         return String(format: "%.0f%%", rate * 100)
+    }
+
+    private func statusLabel(for recap: StatsRecap) -> String {
+        recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? "En curso" : "Finalizado"
+    }
+
+    private func statusColor(for recap: StatsRecap) -> Color {
+        recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? .green : .secondary
     }
 
     private func dayEntries(from recap: StatsRecap, useWeekday: Bool) -> [BarEntry] {

@@ -49,7 +49,7 @@ struct StatsOverviewScreen: View {
     private func loadedContent(_ payload: StatsOverviewContent) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             GroupBox("Fecha de referencia") {
-                DatePicker("Fecha", selection: $viewModel.referenceDate, displayedComponents: .date)
+                DatePicker("Fecha", selection: $viewModel.referenceDate, in: ...Date(), displayedComponents: .date)
                     .datePickerStyle(.compact)
             }
 
@@ -143,6 +143,9 @@ private struct RecapCardView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(recap.period.title)
                 .font(.headline)
+            Text(statusLabel)
+                .font(.caption2)
+                .foregroundColor(statusColor)
             Text(StatsDateFormatter.rangeText(for: recap.period, interval: recap.interval, calendar: calendar))
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -166,6 +169,14 @@ private struct RecapCardView: View {
     private var rateText: String {
         guard let rate = recap.completionRate else { return "-" }
         return String(format: "%.0f%%", rate * 100)
+    }
+
+    private var statusLabel: String {
+        recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? "En curso" : "Finalizado"
+    }
+
+    private var statusColor: Color {
+        recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? .green : .secondary
     }
 }
 

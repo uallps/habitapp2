@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 
 struct StatsDayStat: Identifiable {
     var id: Date { date }
@@ -52,6 +51,8 @@ struct StatsRecap {
     let dayHabitStatuses: [Date: [StatsHabitDayStatus]]
     let bestWeekday: String?
     let worstWeekday: String?
+    let bestMonthName: String?
+    let worstMonthName: String?
     let currentStreak: Int
     let bestStreak: Int
     let comparison: StatsComparison?

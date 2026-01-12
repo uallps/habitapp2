@@ -2,14 +2,20 @@ import Foundation
 
 struct StatsHighlightBuilder {
     func highlights(
+        period: StatsPeriod,
+        isCurrent: Bool,
         completed: Int,
         expected: Int,
         completionRate: Double?,
         bestWeekday: String?,
-        topHabit: String?
+        topHabit: String?,
+        bestMonthName: String?,
+        worstMonthName: String?
     ) -> [String] {
         var items: [String] = []
         let primary = primaryHighlight(
+            period: period,
+            isCurrent: isCurrent,
             completed: completed,
             expected: expected,
             completionRate: completionRate,
@@ -19,6 +25,14 @@ struct StatsHighlightBuilder {
         items.append(primary)
 
         if expected > 0 {
+            if period == .yearly, let bestMonthName {
+                let worstPart = worstMonthName.map { " · Peor mes: \($0)" } ?? ""
+                let message = "Mejor mes: \(bestMonthName)\(worstPart)"
+                if !items.contains(message) {
+                    items.append(message)
+                }
+            }
+
             if let weekday = bestWeekday {
                 let message = "Tu mejor dia fue: \(weekday)"
                 if !items.contains(message) {
@@ -38,6 +52,8 @@ struct StatsHighlightBuilder {
     }
 
     private func primaryHighlight(
+        period: StatsPeriod,
+        isCurrent: Bool,
         completed: Int,
         expected: Int,
         completionRate: Double?,
@@ -47,15 +63,25 @@ struct StatsHighlightBuilder {
         if expected == 0 {
             return "Sin habitos programados para este periodo"
         }
+
+        let rate = completionRate ?? 0
+        if isCurrent {
+            return currentPeriodHighlight(period: period, rate: rate, completed: completed, expected: expected)
+        }
+
         if completed == expected, expected > 0 {
-            return "Perfecto: completaste todo lo esperado"
+            return pastPeriodHighlight(period: period, type: .perfect)
         }
-        if let rate = completionRate, rate >= 0.8, expected > 0 {
-            return "Muy bien: gran constancia en este periodo"
+        if rate >= 0.8, expected > 0 {
+            return pastPeriodHighlight(period: period, type: .good)
         }
-        if let rate = completionRate, rate > 0, rate < 0.5 {
-            return "Toca retomar: poco cumplimiento este periodo"
+        if rate > 0, rate < 0.5 {
+            return pastPeriodHighlight(period: period, type: .low)
         }
+        if rate == 0, expected > 0 {
+            return "Sin completados en este periodo"
+        }
+
         if let weekday = bestWeekday {
             return "Tu mejor dia fue: \(weekday)"
         }
@@ -64,4 +90,75 @@ struct StatsHighlightBuilder {
         }
         return "Sin datos aplicables para este periodo"
     }
+
+    private func currentPeriodHighlight(period: StatsPeriod, rate: Double, completed: Int, expected: Int) -> String {
+        if completed == expected, expected > 0 {
+            switch period {
+            case .daily:
+                return "En curso: perfecto hoy"
+            case .weekly:
+                return "En curso: semana perfecta hasta hoy"
+            case .monthly:
+                return "En curso: mes perfecto hasta hoy"
+            case .yearly:
+                return "En curso: ano perfecto hasta hoy"
+            }
+        }
+        if rate == 0, expected > 0 {
+            return "En curso: aun sin completados"
+        }
+        if rate >= 0.8 {
+            switch period {
+            case .daily:
+                return "En curso: muy bien hoy"
+            case .weekly:
+                return "En curso: vas bien esta semana"
+            case .monthly:
+                return "En curso: buen arranque de mes"
+            case .yearly:
+                return "En curso: buen ritmo este ano"
+            }
+        }
+        if rate > 0, rate < 0.5 {
+            switch period {
+            case .daily:
+                return "En curso: hoy flojo, aun puedes"
+            case .weekly:
+                return "En curso: semana floja, aun puedes"
+            case .monthly:
+                return "En curso: mes flojo, aun hay tiempo"
+            case .yearly:
+                return "En curso: ano flojo, aun hay tiempo"
+            }
+        }
+        switch period {
+        case .daily:
+            return "En curso: buen ritmo hoy"
+        case .weekly:
+            return "En curso: buen ritmo semanal"
+        case .monthly:
+            return "En curso: ritmo estable este mes"
+        case .yearly:
+            return "En curso: ritmo estable este ano"
+        }
+    }
+
+    private func pastPeriodHighlight(period: StatsPeriod, type: PastHighlightType) -> String {
+        switch period {
+        case .daily:
+            return type == .perfect ? "Dia perfecto" : type == .good ? "Buen dia" : "Dia flojo"
+        case .weekly:
+            return type == .perfect ? "Semana perfecta" : type == .good ? "Muy buena semana" : "Semana floja"
+        case .monthly:
+            return type == .perfect ? "Mes perfecto" : type == .good ? "Buen mes" : "Mes flojo"
+        case .yearly:
+            return type == .perfect ? "Ano perfecto" : type == .good ? "Buen ano" : "Ano flojo"
+        }
+    }
+}
+
+private enum PastHighlightType {
+    case perfect
+    case good
+    case low
 }
