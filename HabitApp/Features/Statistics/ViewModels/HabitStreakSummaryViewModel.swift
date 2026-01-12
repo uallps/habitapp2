@@ -1,4 +1,5 @@
-﻿import Foundation
+import Foundation
+import Combine
 
 @MainActor
 final class HabitStreakSummaryViewModel: ObservableObject {
