@@ -9,7 +9,7 @@ import SwiftUI
 @main
 struct HabitApp: App {
     @StateObject private var appConfig = AppConfig()
-    @State private var sidebarSelection: SidebarItem? = .habits
+    @State private var sidebarSelection: String? = "habits"
 
     private var storageProvider: StorageProvider {
         appConfig.storageProvider
@@ -19,15 +19,41 @@ struct HabitApp: App {
         appConfig.isPremium && appConfig.enableDailyNotes
     }
 
-    private var statsEnabled: Bool {
-        appConfig.isPremium && appConfig.enableStatistics
+    private var pluginTabs: [PluginTabItem] {
+        PluginRegistry.shared.getTabItems()
     }
 
-    private var sidebarItems: [SidebarItem] {
-        var items: [SidebarItem] = [.habits]
-        if notesEnabled { items.append(.notes) }
-        if statsEnabled { items.append(.stats) }
-        items.append(.settings)
+    private var sidebarItems: [AppSidebarItem] {
+        var items: [AppSidebarItem] = [
+            AppSidebarItem(
+                id: "habits",
+                title: "Habitos",
+                systemImage: "checklist",
+                view: AnyView(HabitListView(storageProvider: storageProvider))
+            )
+        ]
+        if notesEnabled {
+            items.append(AppSidebarItem(
+                id: "notes",
+                title: "Notas",
+                systemImage: "note.text",
+                view: AnyView(NotesListView(storageProvider: storageProvider))
+            ))
+        }
+        for tab in pluginTabs {
+            items.append(AppSidebarItem(
+                id: tab.id,
+                title: tab.title,
+                systemImage: tab.systemImage,
+                view: tab.view
+            ))
+        }
+        items.append(AppSidebarItem(
+            id: "settings",
+            title: "Ajustes",
+            systemImage: "gearshape",
+            view: AnyView(SettingsView())
+        ))
         return items
     }
 
@@ -47,10 +73,10 @@ struct HabitApp: App {
                         }
                 }
 
-                if statsEnabled {
-                    StatisticsDashboardView(storageProvider: storageProvider)
+                ForEach(pluginTabs) { tab in
+                    tab.view
                         .tabItem {
-                            Label("Estadisticas", systemImage: "chart.bar.xaxis")
+                            Label(tab.title, systemImage: tab.systemImage)
                         }
                 }
 
@@ -63,28 +89,16 @@ struct HabitApp: App {
             #else
             NavigationSplitView {
                 List(sidebarItems, selection: $sidebarSelection) { item in
-                    NavigationLink(value: item) {
+                    NavigationLink(value: item.id) {
                         Label(item.title, systemImage: item.systemImage)
                     }
                 }
             } detail: {
-                switch sidebarSelection ?? .habits {
-                case .habits:
-                    HabitListView(storageProvider: storageProvider)
-                case .notes:
-                    if notesEnabled {
-                        NotesListView(storageProvider: storageProvider)
-                    } else {
-                        Text("Notas desactivadas")
-                    }
-                case .stats:
-                    if statsEnabled {
-                        StatisticsDashboardView(storageProvider: storageProvider)
-                    } else {
-                        Text("Estadisticas desactivadas")
-                    }
-                case .settings:
-                    SettingsView()
+                if let selection = sidebarSelection,
+                   let item = sidebarItems.first(where: { $0.id == selection }) {
+                    item.view
+                } else {
+                    Text("Seleccion no disponible")
                 }
             }
             .environmentObject(appConfig)
@@ -93,29 +107,9 @@ struct HabitApp: App {
     }
 }
 
-private enum SidebarItem: Hashable, Identifiable {
-    case habits
-    case notes
-    case stats
-    case settings
-
-    var id: Self { self }
-
-    var title: String {
-        switch self {
-        case .habits: return "Habitos"
-        case .notes: return "Notas"
-        case .stats: return "Estadisticas"
-        case .settings: return "Ajustes"
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .habits: return "checklist"
-        case .notes: return "note.text"
-        case .stats: return "chart.bar.xaxis"
-        case .settings: return "gearshape"
-        }
-    }
+private struct AppSidebarItem: Identifiable {
+    let id: String
+    let title: String
+    let systemImage: String
+    let view: AnyView
 }
