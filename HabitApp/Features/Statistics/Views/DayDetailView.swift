@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct DayDetailView: View {
     let detail: StatsDayDetail

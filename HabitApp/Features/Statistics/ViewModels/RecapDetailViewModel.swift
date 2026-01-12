@@ -1,5 +1,5 @@
 import Foundation
-
+import Combine
 @MainActor
 final class RecapDetailViewModel: ObservableObject {
     @Published private(set) var state: StatsLoadState<StatsRecap> = .loading

@@ -1,5 +1,5 @@
 import Foundation
-
+import Combine
 enum StatsLoadState<T> {
     case loading
     case empty(String)

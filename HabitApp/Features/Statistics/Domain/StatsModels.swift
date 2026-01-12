@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 struct StatsDayStat: Identifiable {
     var id: Date { date }

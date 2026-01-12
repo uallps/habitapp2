@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 enum StatsPeriod: String, CaseIterable, Identifiable {
     case daily
