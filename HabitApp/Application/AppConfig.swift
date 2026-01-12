@@ -10,9 +10,6 @@ import SwiftUI
 import SwiftData
 
 final class AppConfig: ObservableObject {
-    @AppStorage("enableStreaks")
-    var enableStreaks: Bool = true
-
     @AppStorage("enableDailyNotes")
     var enableDailyNotes: Bool = false
 
@@ -37,8 +34,11 @@ final class AppConfig: ObservableObject {
     }
 
     private lazy var swiftDataProvider: HabitSwiftDataStorageProvider = {
-        var schemas: [any PersistentModel.Type] = [Habit.self]
-        var seen: Set<ObjectIdentifier> = [ObjectIdentifier(Habit.self)]
+        var schemas: [any PersistentModel.Type] = [Habit.self, HabitCompletionRecord.self]
+        var seen: Set<ObjectIdentifier> = [
+            ObjectIdentifier(Habit.self),
+            ObjectIdentifier(HabitCompletionRecord.self)
+        ]
         for plugin in plugins {
             for model in plugin.models {
                 let identifier = ObjectIdentifier(model)
@@ -55,4 +55,17 @@ final class AppConfig: ObservableObject {
     var storageProvider: StorageProvider {
         swiftDataProvider
     }
+
+    lazy var statisticsDependencies: StatisticsDependencies = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale.current
+        calendar.timeZone = TimeZone.current
+        calendar.firstWeekday = 2
+        calendar.minimumDaysInFirstWeek = 4
+        return StatisticsDependencies(
+            habitDataSource: CoreHabitStatsAdapter(storageProvider: storageProvider),
+            completionDataSource: CoreCompletionStatsAdapter(calendar: calendar),
+            calendar: calendar
+        )
+    }()
 }

@@ -72,6 +72,14 @@ final class PluginRegistry {
             .map { AnyView($0.settingsView()) }
     }
 
+    func getTabItems() -> [PluginTabItem] {
+        pluginInstances
+            .compactMap { $0 as? any TabPlugin }
+            .filter { $0.isEnabled }
+            .compactMap { $0.tabItem() }
+            .sorted { $0.order < $1.order }
+    }
+
     func clearAll() {
         registeredPlugins.removeAll()
         pluginInstances.removeAll()
