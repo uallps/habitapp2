@@ -20,7 +20,7 @@ struct StatsOverviewScreen: View {
                 await viewModel.refresh()
             }
             .onAppear {
-                viewModel.resetQuickView()
+                viewModel.setReferenceDateToToday()
             }
             .onChange(of: viewModel.referenceDate) { _, _ in
                 Task { await viewModel.refresh() }
@@ -95,6 +95,7 @@ struct StatsOverviewScreen: View {
                     monthDate: viewModel.quickViewMonth,
                     isLoading: viewModel.isQuickViewLoading,
                     calendar: dependencies.calendar,
+                    selectedDate: $viewModel.quickViewSelectedDate,
                     onMoveMonth: { offset in
                         viewModel.moveQuickViewMonth(by: offset)
                     }

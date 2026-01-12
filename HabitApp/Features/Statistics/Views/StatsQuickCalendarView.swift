@@ -5,8 +5,8 @@ struct StatsQuickCalendarView: View {
     let monthDate: Date
     let isLoading: Bool
     let calendar: Calendar
+    @Binding var selectedDate: Date
     let onMoveMonth: (Int) -> Void
-    @State private var selectedDate: Date = Date()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -52,12 +52,6 @@ struct StatsQuickCalendarView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-        }
-        .onAppear {
-            selectedDate = monthDate
-        }
-        .onChange(of: monthDate) { _, newValue in
-            selectedDate = newValue
         }
     }
 

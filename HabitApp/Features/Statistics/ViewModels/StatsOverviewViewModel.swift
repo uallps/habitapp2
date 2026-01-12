@@ -7,6 +7,7 @@ final class StatsOverviewViewModel: ObservableObject {
     @Published var summaryPeriod: StatsPeriod
     @Published private(set) var state: StatsLoadState<StatsOverviewContent> = .loading
     @Published var quickViewMonth: Date
+    @Published var quickViewSelectedDate: Date
     @Published private(set) var quickViewRecap: StatsRecap?
     @Published private(set) var isQuickViewLoading: Bool = false
 
@@ -17,9 +18,10 @@ final class StatsOverviewViewModel: ObservableObject {
 
     init(dependencies: StatisticsDependencies, referenceDate: Date = Date()) {
         self.dependencies = dependencies
-        self.referenceDate = referenceDate
+        self.referenceDate = dependencies.calendar.startOfDay(for: referenceDate)
         self.summaryPeriod = .weekly
         self.quickViewMonth = dependencies.calendar.dateInterval(of: .month, for: referenceDate)?.start ?? referenceDate
+        self.quickViewSelectedDate = dependencies.calendar.startOfDay(for: referenceDate)
         self.calculator = StatsCalculator(calendar: dependencies.calendar)
         Task { await load() }
     }
@@ -38,6 +40,7 @@ final class StatsOverviewViewModel: ObservableObject {
         if usingCache, let cached = recapCache[cacheKey] {
             state = makeState(from: cached)
             quickViewMonth = startOfMonth(for: referenceDate)
+            quickViewSelectedDate = dependencies.calendar.startOfDay(for: referenceDate)
             quickViewRecap = cached[.monthly]
             return
         }
@@ -73,6 +76,7 @@ final class StatsOverviewViewModel: ObservableObject {
             recapCache[cacheKey] = recaps
             state = makeState(from: recaps)
             quickViewMonth = startOfMonth(for: referenceDate)
+            quickViewSelectedDate = dependencies.calendar.startOfDay(for: referenceDate)
             quickViewRecap = recaps[.monthly]
         } catch {
             state = .error("No se pudieron cargar las estadisticas")
@@ -82,7 +86,18 @@ final class StatsOverviewViewModel: ObservableObject {
 
     func resetQuickView() {
         quickViewMonth = startOfMonth(for: referenceDate)
+        quickViewSelectedDate = dependencies.calendar.startOfDay(for: referenceDate)
         Task { await loadQuickView(for: quickViewMonth) }
+    }
+
+    func setReferenceDateToToday() {
+        let today = dependencies.calendar.startOfDay(for: Date())
+        let current = dependencies.calendar.startOfDay(for: referenceDate)
+        if current != today {
+            referenceDate = today
+        } else {
+            resetQuickView()
+        }
     }
 
     func moveQuickViewMonth(by offset: Int) {
