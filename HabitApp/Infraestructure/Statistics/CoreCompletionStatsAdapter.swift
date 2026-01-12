@@ -16,7 +16,7 @@ final class CoreCompletionStatsAdapter: CompletionStatsDataSource {
         let end = calendar.startOfDay(for: interval.end)
         let descriptor = FetchDescriptor<HabitCompletionRecord>(
             predicate: #Predicate { record in
-                record.date >= start && record.date <= end
+                record.date >= start && record.date < end
             }
         )
         let records = try context.fetch(descriptor)

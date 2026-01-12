@@ -16,7 +16,7 @@ final class HabitStatisticsViewModel: ObservableObject {
 
     func refresh() async {
         do {
-            let habits = try await storageProvider.loadHabits()
+            let habits = try await storageProvider.loadHabits().filter { !$0.isArchived }
             totalHabits = habits.count
             completedToday = habits.filter { $0.isCompletedToday }.count
             weeklyHabits = habits.filter { $0.frequency == .weekly }.count

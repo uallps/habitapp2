@@ -19,8 +19,12 @@ struct StatsOverviewScreen: View {
             .refreshable {
                 await viewModel.refresh()
             }
+            .onAppear {
+                viewModel.resetQuickView()
+            }
             .onChange(of: viewModel.referenceDate) { _, _ in
                 Task { await viewModel.refresh() }
+                viewModel.resetQuickView()
             }
         }
     }
@@ -85,58 +89,18 @@ struct StatsOverviewScreen: View {
                 }
             }
 
-            if let summaryRecap = payload.recaps[viewModel.summaryPeriod] {
-                GroupBox("Vista rapida") {
-                    if summaryRecap.expectedTotal == 0 {
-                        Text("Sin habitos programados para este periodo")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        MiniChartView(entries: miniChartEntries(for: summaryRecap), period: summaryRecap.period)
+            GroupBox("Vista rapida") {
+                StatsQuickCalendarView(
+                    recap: viewModel.quickViewRecap,
+                    monthDate: viewModel.quickViewMonth,
+                    isLoading: viewModel.isQuickViewLoading,
+                    calendar: dependencies.calendar,
+                    onMoveMonth: { offset in
+                        viewModel.moveQuickViewMonth(by: offset)
                     }
-                }
+                )
             }
         }
-    }
-
-    private func miniChartEntries(for recap: StatsRecap) -> [BarEntry] {
-        switch recap.period {
-        case .daily:
-            return recap.habitStats
-                .filter { $0.expected > 0 }
-                .prefix(5)
-                .map { stat in
-                    BarEntry(label: shortLabel(stat.name), completed: stat.completed, expected: stat.expected)
-                }
-        case .weekly:
-            return recap.dayStats.map { stat in
-                let weekday = dependencies.calendar.component(.weekday, from: stat.date)
-                let label = dependencies.calendar.shortWeekdaySymbols[weekday - 1]
-                return BarEntry(label: label, completed: stat.completed, expected: stat.expected)
-            }
-        case .monthly:
-            return recap.dayStats.map { stat in
-                let label = String(dependencies.calendar.component(.day, from: stat.date))
-                return BarEntry(label: label, completed: stat.completed, expected: stat.expected)
-            }
-        case .yearly:
-            let grouped = Dictionary(grouping: recap.dayStats) { stat in
-                dependencies.calendar.component(.month, from: stat.date)
-            }
-            return (1...12).map { month in
-                let stats = grouped[month] ?? []
-                let completed = stats.map(\.completed).reduce(0, +)
-                let expected = stats.map(\.expected).reduce(0, +)
-                let label = dependencies.calendar.shortMonthSymbols[month - 1]
-                return BarEntry(label: label, completed: completed, expected: expected)
-            }
-        }
-    }
-
-    private func shortLabel(_ text: String) -> String {
-        if text.count <= 4 { return text }
-        let index = text.index(text.startIndex, offsetBy: 4)
-        return String(text[..<index])
     }
 }
 
@@ -204,24 +168,6 @@ private struct RecapCardView: View {
     }
 }
 
-private struct MiniChartView: View {
-    let entries: [BarEntry]
-    let period: StatsPeriod
-
-    var body: some View {
-        if entries.isEmpty {
-            Text("Sin datos para mostrar")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        } else {
-            ScrollView(.horizontal, showsIndicators: false) {
-                BarChartView(entries: entries)
-                    .padding(.vertical, 8)
-            }
-        }
-    }
-}
-
 private struct EmptyStatsView: View {
     let message: String
 
@@ -232,7 +178,7 @@ private struct EmptyStatsView: View {
             Text("Crear habito")
                 .font(.headline)
                 .foregroundColor(.accentColor)
-            Text("Usa la pestaña Habitos para agregar el primero.")
+            Text("Usa la pestana Habitos para agregar el primero.")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

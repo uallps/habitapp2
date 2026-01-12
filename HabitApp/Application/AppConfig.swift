@@ -60,7 +60,9 @@ final class AppConfig: ObservableObject {
     }
 
     lazy var statisticsDependencies: StatisticsDependencies = {
-        let calendar = Calendar.current
+        var calendar = Calendar(identifier: .iso8601)
+        calendar.locale = Locale.current
+        calendar.timeZone = TimeZone.current
         return StatisticsDependencies(
             habitDataSource: CoreHabitStatsAdapter(storageProvider: storageProvider),
             completionDataSource: CoreCompletionStatsAdapter(calendar: calendar),

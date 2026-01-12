@@ -3,7 +3,6 @@ import Foundation
 enum StatsHabitFrequency: String, Codable, CaseIterable {
     case daily
     case weekly
-    case monthly
 }
 
 struct StatsHabitSnapshot: Identifiable, Hashable {
@@ -11,6 +10,8 @@ struct StatsHabitSnapshot: Identifiable, Hashable {
     let name: String
     let frequency: StatsHabitFrequency
     let createdAt: Date
+    let weeklyDays: [Int]
+    let archivedAt: Date?
 }
 
 struct StatsCompletionSnapshot: Hashable {

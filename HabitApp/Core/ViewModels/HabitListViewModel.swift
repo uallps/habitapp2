@@ -49,9 +49,13 @@ final class HabitListViewModel: ObservableObject {
 
     func toggleCompletion(for habit: Habit) async {
         guard let index = habits.firstIndex(where: { $0.id == habit.id }) else { return }
+        guard !habits[index].isArchived else { return }
+        guard habits[index].isScheduled(on: Date()) else { return }
         habits[index].isCompletedToday.toggle()
         if habits[index].isCompletedToday {
             habits[index].lastCompletionDate = Date()
+        } else {
+            habits[index].lastCompletionDate = nil
         }
         await PluginRegistry.shared.notifyHabitCompletion(habits[index])
         await persist()

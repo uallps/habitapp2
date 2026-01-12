@@ -68,7 +68,12 @@ final class StatsCalculator {
     ) -> StatsMetrics {
         let startDay = calendar.startOfDay(for: interval.start)
         let endDay = calendar.startOfDay(for: interval.end)
-        let activeHabits = habits.filter { calendar.startOfDay(for: $0.createdAt) <= endDay }
+        let activeHabits = habits.filter { habit in
+            let habitStart = calendar.startOfDay(for: habit.createdAt)
+            let archivedDay = habit.archivedAt.map { calendar.startOfDay(for: $0) }
+            let isActiveInRange = habitStart < endDay && (archivedDay == nil || archivedDay! >= startDay)
+            return isActiveInRange
+        }
 
         var dayStats: [StatsDayStat] = []
         var dayHabitStatuses: [Date: [StatsHabitDayStatus]] = [:]
@@ -77,7 +82,7 @@ final class StatsCalculator {
         var weekdayTotals: [Int: (completed: Int, expected: Int)] = [:]
 
         var day = startDay
-        while day <= endDay {
+        while day < endDay {
             var dayExpected = 0
             var dayCompleted = 0
             var statuses: [StatsHabitDayStatus] = []
@@ -157,6 +162,12 @@ final class StatsCalculator {
 
     private func expectedCount(for habit: StatsHabitSnapshot, on date: Date) -> Int {
         let habitStart = calendar.startOfDay(for: habit.createdAt)
+        if let archivedAt = habit.archivedAt {
+            let archivedDay = calendar.startOfDay(for: archivedAt)
+            if date > archivedDay {
+                return 0
+            }
+        }
         if date < habitStart {
             return 0
         }
@@ -164,13 +175,8 @@ final class StatsCalculator {
         case .daily:
             return 1
         case .weekly:
-            let habitWeekday = calendar.component(.weekday, from: habitStart)
             let dateWeekday = calendar.component(.weekday, from: date)
-            return habitWeekday == dateWeekday ? 1 : 0
-        case .monthly:
-            let habitDay = calendar.component(.day, from: habitStart)
-            let dateDay = calendar.component(.day, from: date)
-            return habitDay == dateDay ? 1 : 0
+            return habit.weeklyDays.contains(dateWeekday) ? 1 : 0
         }
     }
 

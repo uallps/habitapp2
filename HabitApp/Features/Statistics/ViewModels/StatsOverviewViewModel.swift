@@ -1,20 +1,24 @@
 import Foundation
-import Combine
 
 @MainActor
 final class StatsOverviewViewModel: ObservableObject {
     @Published var referenceDate: Date
     @Published var summaryPeriod: StatsPeriod
     @Published private(set) var state: StatsLoadState<StatsOverviewContent> = .loading
+    @Published var quickViewMonth: Date
+    @Published private(set) var quickViewRecap: StatsRecap?
+    @Published private(set) var isQuickViewLoading: Bool = false
 
     private let dependencies: StatisticsDependencies
     private let calculator: StatsCalculator
     private var recapCache: [Date: [StatsPeriod: StatsRecap]] = [:]
+    private var cachedHabits: [StatsHabitSnapshot] = []
 
     init(dependencies: StatisticsDependencies, referenceDate: Date = Date()) {
         self.dependencies = dependencies
         self.referenceDate = referenceDate
         self.summaryPeriod = .weekly
+        self.quickViewMonth = dependencies.calendar.dateInterval(of: .month, for: referenceDate)?.start ?? referenceDate
         self.calculator = StatsCalculator(calendar: dependencies.calendar)
         Task { await load() }
     }
@@ -32,13 +36,17 @@ final class StatsOverviewViewModel: ObservableObject {
         let cacheKey = dependencies.calendar.startOfDay(for: referenceDate)
         if usingCache, let cached = recapCache[cacheKey] {
             state = makeState(from: cached)
+            quickViewMonth = startOfMonth(for: referenceDate)
+            quickViewRecap = cached[.monthly]
             return
         }
 
         do {
             let habits = try await dependencies.habitDataSource.fetchHabits()
+            cachedHabits = habits
             if habits.isEmpty {
                 state = .empty("No hay habitos activos")
+                quickViewRecap = nil
                 return
             }
 
@@ -63,9 +71,46 @@ final class StatsOverviewViewModel: ObservableObject {
 
             recapCache[cacheKey] = recaps
             state = makeState(from: recaps)
+            quickViewMonth = startOfMonth(for: referenceDate)
+            quickViewRecap = recaps[.monthly]
         } catch {
             state = .error("No se pudieron cargar las estadisticas")
+            quickViewRecap = nil
         }
+    }
+
+    func resetQuickView() {
+        quickViewMonth = startOfMonth(for: referenceDate)
+        Task { await loadQuickView(for: quickViewMonth) }
+    }
+
+    func moveQuickViewMonth(by offset: Int) {
+        guard let newMonth = dependencies.calendar.date(byAdding: .month, value: offset, to: quickViewMonth) else { return }
+        quickViewMonth = startOfMonth(for: newMonth)
+        Task { await loadQuickView(for: quickViewMonth) }
+    }
+
+    private func loadQuickView(for monthDate: Date) async {
+        isQuickViewLoading = true
+        do {
+            let habits = cachedHabits.isEmpty ? try await dependencies.habitDataSource.fetchHabits() : cachedHabits
+            cachedHabits = habits
+            let interval = StatsPeriod.monthly.interval(containing: monthDate, calendar: dependencies.calendar)
+            let previous = StatsPeriod.monthly.previousInterval(from: monthDate, calendar: dependencies.calendar)
+            let overall = DateInterval(start: previous.start, end: interval.end)
+            let completions = try await dependencies.completionDataSource.completions(in: overall)
+            let completionMap = calculator.completionMap(from: completions)
+            let recap = calculator.recap(
+                period: .monthly,
+                referenceDate: monthDate,
+                habits: habits,
+                completionMap: completionMap
+            )
+            quickViewRecap = recap
+        } catch {
+            quickViewRecap = nil
+        }
+        isQuickViewLoading = false
     }
 
     private func makeState(from recaps: [StatsPeriod: StatsRecap]) -> StatsLoadState<StatsOverviewContent> {
@@ -87,6 +132,10 @@ final class StatsOverviewViewModel: ObservableObject {
             latestEnd = max(latestEnd, current.end)
         }
         return DateInterval(start: earliestStart, end: latestEnd)
+    }
+
+    private func startOfMonth(for date: Date) -> Date {
+        dependencies.calendar.dateInterval(of: .month, for: date)?.start ?? date
     }
 }
 

@@ -11,7 +11,9 @@ struct CoreHabitStatsAdapter: HabitStatsDataSource {
                 id: habit.id,
                 name: habit.name,
                 frequency: mapFrequency(habit.frequency),
-                createdAt: habit.createdAt
+                createdAt: habit.createdAt,
+                weeklyDays: habit.weeklyDays,
+                archivedAt: habit.archivedAt
             )
         }
     }
@@ -22,8 +24,6 @@ struct CoreHabitStatsAdapter: HabitStatsDataSource {
             return .daily
         case .weekly:
             return .weekly
-        case .monthly:
-            return .monthly
         }
     }
 }
