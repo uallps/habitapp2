@@ -7,7 +7,8 @@ enum StatsDateFormatter {
             return dayFormatter(calendar).string(from: interval.start)
         case .weekly:
             let startText = dayFormatter(calendar).string(from: interval.start)
-            let endText = dayFormatter(calendar).string(from: interval.end)
+            let endDate = calendar.date(byAdding: .day, value: -1, to: interval.end) ?? interval.end
+            let endText = dayFormatter(calendar).string(from: endDate)
             return "Semana \(startText)-\(endText)"
         case .monthly:
             return monthFormatter(calendar).string(from: interval.start)

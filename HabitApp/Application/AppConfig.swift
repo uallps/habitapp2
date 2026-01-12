@@ -60,9 +60,11 @@ final class AppConfig: ObservableObject {
     }
 
     lazy var statisticsDependencies: StatisticsDependencies = {
-        var calendar = Calendar(identifier: .iso8601)
+        var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale.current
         calendar.timeZone = TimeZone.current
+        calendar.firstWeekday = 2
+        calendar.minimumDaysInFirstWeek = 4
         return StatisticsDependencies(
             habitDataSource: CoreHabitStatsAdapter(storageProvider: storageProvider),
             completionDataSource: CoreCompletionStatsAdapter(calendar: calendar),

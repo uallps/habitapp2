@@ -26,7 +26,7 @@ struct StatsHighlightBuilder {
 
         if expected > 0 {
             if period == .yearly, let bestMonthName {
-                let worstPart = worstMonthName.map { " · Peor mes: \($0)" } ?? ""
+                let worstPart = worstMonthName.map { " - Peor mes: \($0)" } ?? ""
                 let message = "Mejor mes: \(bestMonthName)\(worstPart)"
                 if !items.contains(message) {
                     items.append(message)
@@ -101,7 +101,7 @@ struct StatsHighlightBuilder {
             case .monthly:
                 return "En curso: mes perfecto hasta hoy"
             case .yearly:
-                return "En curso: año perfecto hasta hoy"
+                return "En curso: ano perfecto hasta hoy"
             }
         }
         if rate == 0, expected > 0 {
@@ -114,9 +114,9 @@ struct StatsHighlightBuilder {
             case .weekly:
                 return "En curso: vas bien esta semana"
             case .monthly:
-                return "En curso: buen arranque de mes"
+                return "En curso: buen ritmo este mes"
             case .yearly:
-                return "En curso: buen ritmo este año"
+                return "En curso: buen ritmo este ano"
             }
         }
         if rate > 0, rate < 0.5 {
@@ -124,22 +124,22 @@ struct StatsHighlightBuilder {
             case .daily:
                 return "En curso: hoy flojo, aun puedes"
             case .weekly:
-                return "En curso: semana floja, aun puedes"
+                return "En curso: semana floja, aun puedes remontar"
             case .monthly:
                 return "En curso: mes flojo, aun hay tiempo"
             case .yearly:
-                return "En curso: año flojo, aun hay tiempo"
+                return "En curso: ano flojo, aun hay tiempo"
             }
         }
         switch period {
         case .daily:
             return "En curso: buen ritmo hoy"
         case .weekly:
-            return "En curso: buen ritmo semanal"
+            return "En curso: buen ritmo esta semana"
         case .monthly:
             return "En curso: ritmo estable este mes"
         case .yearly:
-            return "En curso: ritmo estable este año"
+            return "En curso: ritmo estable este ano"
         }
     }
 
@@ -152,7 +152,7 @@ struct StatsHighlightBuilder {
         case .monthly:
             return type == .perfect ? "Mes perfecto" : type == .good ? "Buen mes" : "Mes flojo"
         case .yearly:
-            return type == .perfect ? "Año perfecto" : type == .good ? "Buen año" : "Año flojo"
+            return type == .perfect ? "Ano perfecto" : type == .good ? "Buen ano" : "Ano flojo"
         }
     }
 }

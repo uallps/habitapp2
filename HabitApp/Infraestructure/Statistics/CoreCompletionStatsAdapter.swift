@@ -33,7 +33,12 @@ final class CoreCompletionStatsAdapter: CompletionStatsDataSource {
                 record.habitId == habitId && record.date == day
             }
         )
-        if try context.fetch(descriptor).first == nil {
+        if let existing = try context.fetch(descriptor).first {
+            if existing.count != 1 {
+                existing.count = 1
+                try context.save()
+            }
+        } else {
             let record = HabitCompletionRecord(habitId: habitId, date: day, count: 1)
             context.insert(record)
             try context.save()
@@ -49,11 +54,7 @@ final class CoreCompletionStatsAdapter: CompletionStatsDataSource {
             }
         )
         if let existing = try context.fetch(descriptor).first {
-            if existing.count > 1 {
-                existing.count -= 1
-            } else {
-                context.delete(existing)
-            }
+            context.delete(existing)
             try context.save()
         }
     }

@@ -15,6 +15,9 @@ enum PluginDiscovery {
                 let className = NSStringFromClass(candidate)
                 guard className.hasPrefix(executableName) else { continue }
                 if let pluginType = candidate as? FeaturePlugin.Type {
+                    if pluginType is HabitStreakPlugin.Type {
+                        continue
+                    }
                     plugins.append(pluginType)
                 }
             }
@@ -24,7 +27,6 @@ enum PluginDiscovery {
 
         if plugins.isEmpty {
             plugins = [
-                HabitStreakPlugin.self,
                 HabitCategoryPlugin.self,
                 HabitNotePlugin.self,
                 HabitStatisticsPlugin.self
@@ -36,8 +38,6 @@ enum PluginDiscovery {
 
     private static func priority(for plugin: FeaturePlugin.Type) -> Int {
         switch plugin {
-        case is HabitStreakPlugin.Type:
-            return 10
         case is HabitCategoryPlugin.Type:
             return 20
         case is HabitNotePlugin.Type:

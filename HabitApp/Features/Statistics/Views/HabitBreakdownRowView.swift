@@ -8,8 +8,12 @@ struct HabitBreakdownRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(stat.name)
                     .font(.body)
+                    .foregroundColor(stat.isArchived ? .secondary : .primary)
                 Text("\(stat.completed)/\(stat.expected)")
                     .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("Racha: \(stat.currentStreak) / Mejor: \(stat.bestStreak)")
+                    .font(.caption2)
                     .foregroundColor(.secondary)
             }
             Spacer()

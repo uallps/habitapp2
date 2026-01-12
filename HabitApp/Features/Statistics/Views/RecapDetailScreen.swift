@@ -3,6 +3,8 @@ import SwiftUI
 struct RecapDetailScreen: View {
     @StateObject private var viewModel: RecapDetailViewModel
     private let calendar: Calendar
+    @State private var selectedHabitId: UUID? = nil
+    @State private var showArchivedHabits: Bool = false
 
     init(period: StatsPeriod, referenceDate: Date, dependencies: StatisticsDependencies) {
         self.calendar = dependencies.calendar
@@ -57,15 +59,18 @@ struct RecapDetailScreen: View {
 
             summaryMetricsView(recap)
 
+            streaksView(recap)
+
             mainVisualView(recap)
 
             if recap.expectedTotal > 0 {
                 breakdownView(recap)
             }
 
-            if let comparison = recap.comparison {
-                comparisonView(comparison)
+            if recap.period == .yearly {
+                annualStreaksView(recap)
             }
+
         }
     }
 
@@ -128,7 +133,7 @@ struct RecapDetailScreen: View {
             } else {
                 switch recap.period {
                 case .daily:
-                    if let detail = viewModel.selectedDayDetail {
+                    if let detail = dayDetail(for: recap) {
                         DayDetailView(detail: detail, calendar: calendar)
                     } else {
                         Text("Sin habitos programados")
@@ -142,13 +147,26 @@ struct RecapDetailScreen: View {
                     }
                 case .monthly:
                     VStack(alignment: .leading, spacing: 12) {
+                        if !recap.habitStats.isEmpty {
+                            StatsHabitFilterView(
+                                habits: recap.habitStats.map { stat in
+                                    StatsHabitOption(
+                                        id: stat.habitId,
+                                        name: stat.name,
+                                        isArchived: stat.isArchived
+                                    )
+                                },
+                                selectedHabitId: $selectedHabitId,
+                                showArchived: $showArchivedHabits
+                            )
+                        }
                         MonthlyCalendarView(
                             interval: recap.interval,
-                            dayStats: recap.dayStats,
+                            dayStats: calendarDayStats(for: recap),
                             selectedDate: $viewModel.selectedDate,
                             calendar: calendar
                         )
-                        if let detail = viewModel.selectedDayDetail {
+                        if let detail = dayDetail(for: recap) {
                             DayDetailView(detail: detail, calendar: calendar)
                         }
                     }
@@ -159,6 +177,25 @@ struct RecapDetailScreen: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func streaksView(_ recap: StatsRecap) -> some View {
+        GroupBox("Rachas") {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Racha actual")
+                    Spacer()
+                    Text("\(recap.currentStreak) dias")
+                }
+                HStack {
+                    Text("Mejor racha")
+                    Spacer()
+                    Text("\(recap.bestStreak) dias")
+                }
+            }
+            .font(.subheadline)
         }
     }
 
@@ -176,14 +213,21 @@ struct RecapDetailScreen: View {
     }
 
     @ViewBuilder
-    private func comparisonView(_ comparison: StatsComparison) -> some View {
-        GroupBox("Comparacion con periodo anterior") {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Delta cumplimiento: \(String(format: "%.0f%%", comparison.deltaRate * 100))")
-                Text("Delta completados: \(comparison.deltaCompleted)")
-                Text("Tendencia: \(comparison.trendLabel)")
+    private func annualStreaksView(_ recap: StatsRecap) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Mejores rachas del ano")
+                .font(.headline)
+            if recap.annualTopStreaks.isEmpty {
+                Text("Sin rachas registradas para este ano")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                VStack(spacing: 10) {
+                    ForEach(recap.annualTopStreaks) { streak in
+                        streakRow(streak)
+                    }
+                }
             }
-            .font(.subheadline)
         }
     }
 
@@ -224,5 +268,87 @@ struct RecapDetailScreen: View {
             let label = calendar.shortMonthSymbols[month - 1]
             return BarEntry(label: label, completed: completed, expected: expected)
         }
+    }
+
+    private func dayDetail(for recap: StatsRecap) -> StatsDayDetail? {
+        let day = calendar.startOfDay(for: viewModel.selectedDate)
+        guard let dayStat = recap.dayStats.first(where: { calendar.isDate($0.date, inSameDayAs: day) }) else {
+            return nil
+        }
+        let statuses = recap.dayHabitStatuses[calendar.startOfDay(for: day)] ?? []
+        if let habitId = selectedHabitId {
+            let filtered = statuses.filter { $0.habitId == habitId }
+            guard !filtered.isEmpty else { return nil }
+            let completed = filtered.map(\.completed).reduce(0, +)
+            let expected = filtered.map(\.expected).reduce(0, +)
+            return StatsDayDetail(date: day, completed: completed, expected: expected, habits: filtered)
+        }
+        return StatsDayDetail(date: day, completed: dayStat.completed, expected: dayStat.expected, habits: statuses)
+    }
+
+    private func calendarDayStats(for recap: StatsRecap) -> [StatsDayStat] {
+        guard let habitId = selectedHabitId else {
+            return recap.dayStats
+        }
+        return recap.dayStats.map { stat in
+            let day = calendar.startOfDay(for: stat.date)
+            let statuses = recap.dayHabitStatuses[day] ?? []
+            if let status = statuses.first(where: { $0.habitId == habitId }) {
+                return StatsDayStat(date: stat.date, completed: status.completed, expected: status.expected)
+            }
+            return StatsDayStat(date: stat.date, completed: 0, expected: 0)
+        }
+    }
+
+    @ViewBuilder
+    private func streakRow(_ streak: StatsStreakSummary) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(streak.habitName)
+                .font(.subheadline)
+            Text("Duracion: \(streak.lengthDays) dias")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(streakRangeLabel(streak))
+                .font(.caption2)
+                .foregroundColor(.secondary)
+            Text(streakMessage(for: streak.lengthDays, isActive: streak.isActive))
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.secondary.opacity(0.08))
+        .cornerRadius(10)
+    }
+
+    private func streakRangeLabel(_ streak: StatsStreakSummary) -> String {
+        let startText = shortDate(streak.startDate)
+        let endText = streak.isActive ? "hoy" : shortDate(streak.endDate)
+        return "Del \(startText) al \(endText)"
+    }
+
+    private func streakMessage(for lengthDays: Int, isActive: Bool) -> String {
+        let base: String
+        switch lengthDays {
+        case 90...:
+            base = "Impresionante constancia"
+        case 60..<90:
+            base = "Ritmo enorme, sigue asi"
+        case 30..<60:
+            base = "Muy buena racha"
+        case 14..<30:
+            base = "Buen avance"
+        default:
+            base = "Buen comienzo"
+        }
+        return isActive ? "\(base). Racha activa." : base
+    }
+
+    private func shortDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = Locale.current
+        formatter.dateFormat = "d MMM"
+        return formatter.string(from: date)
     }
 }

@@ -13,7 +13,7 @@ final class StatsCalculator {
         for completion in completions {
             let day = calendar.startOfDay(for: completion.date)
             var habitMap = map[completion.habitId, default: [:]]
-            habitMap[day, default: 0] += completion.count
+            habitMap[day] = 1
             map[completion.habitId] = habitMap
         }
         return map
@@ -53,6 +53,15 @@ final class StatsCalculator {
             bestMonthName: monthExtremes.0,
             worstMonthName: monthExtremes.1
         )
+        let annualTopStreaks = period == .yearly
+            ? topYearlyStreaks(
+                interval: interval,
+                referenceDate: referenceDate,
+                habits: habits,
+                completionMap: completionMap,
+                isCurrentPeriod: isCurrentPeriod
+            )
+            : []
 
         return StatsRecap(
             period: period,
@@ -73,6 +82,7 @@ final class StatsCalculator {
             currentStreak: metrics.currentStreak,
             bestStreak: metrics.bestStreak,
             comparison: comparison,
+            annualTopStreaks: annualTopStreaks,
             highlights: highlights,
             primaryHighlight: highlights.first ?? "Sin datos aplicables para este periodo"
         )
@@ -116,6 +126,7 @@ final class StatsCalculator {
         var dayHabitStatuses: [Date: [StatsHabitDayStatus]] = [:]
         var habitExpected: [UUID: Int] = [:]
         var habitCompleted: [UUID: Int] = [:]
+        var habitDayStats: [UUID: [StatsDayStat]] = [:]
         var weekdayTotals: [Int: (completed: Int, expected: Int)] = [:]
 
         var day = startDay
@@ -126,7 +137,7 @@ final class StatsCalculator {
 
             for habit in activeHabits {
                 let expected = expectedCount(for: habit, on: day)
-                let completed = completionMap[habit.id]?[day] ?? 0
+                let completed = min(1, completionMap[habit.id]?[day] ?? 0)
                 if expected > 0 {
                     dayExpected += expected
                     habitExpected[habit.id, default: 0] += expected
@@ -136,6 +147,9 @@ final class StatsCalculator {
                         completed: completed,
                         expected: expected
                     ))
+                    habitDayStats[habit.id, default: []].append(
+                        StatsDayStat(date: day, completed: completed, expected: expected)
+                    )
                 }
                 if completed > 0 {
                     dayCompleted += completed
@@ -161,15 +175,20 @@ final class StatsCalculator {
             habitExpected[habit.id] = 0
             habitCompleted[habit.id] = 0
         }
+        for habit in activeHabits where habitDayStats[habit.id] == nil {
+            habitDayStats[habit.id] = []
+        }
 
         let completedTotal = habitCompleted.values.reduce(0, +)
         let expectedTotal = habitExpected.values.reduce(0, +)
         let completionRate: Double? = expectedTotal > 0 ? Double(completedTotal) / Double(expectedTotal) : nil
 
+        let habitStreaks = habitDayStats.mapValues { calculateStreaks(from: $0) }
         let habitStats = buildHabitStats(
             habits: activeHabits,
             expected: habitExpected,
-            completed: habitCompleted
+            completed: habitCompleted,
+            streaks: habitStreaks
         )
 
         let habitsWithCompletion = habitStats.filter { $0.completed > 0 }.count
@@ -220,19 +239,24 @@ final class StatsCalculator {
     private func buildHabitStats(
         habits: [StatsHabitSnapshot],
         expected: [UUID: Int],
-        completed: [UUID: Int]
+        completed: [UUID: Int],
+        streaks: [UUID: (current: Int, best: Int)]
     ) -> [StatsHabitStat] {
         let baseStats: [StatsHabitStat] = habits.map { habit in
             let expectedValue = expected[habit.id] ?? 0
             let completedValue = completed[habit.id] ?? 0
             let rate: Double? = expectedValue > 0 ? Double(completedValue) / Double(expectedValue) : nil
+            let habitStreak = streaks[habit.id] ?? (0, 0)
             return StatsHabitStat(
                 habitId: habit.id,
                 name: habit.name,
+                isArchived: habit.archivedAt != nil,
                 completed: completedValue,
                 expected: expectedValue,
                 rate: rate,
-                badge: nil
+                badge: nil,
+                currentStreak: habitStreak.current,
+                bestStreak: habitStreak.best
             )
         }
 
@@ -258,10 +282,13 @@ final class StatsCalculator {
             return StatsHabitStat(
                 habitId: stat.habitId,
                 name: stat.name,
+                isArchived: stat.isArchived,
                 completed: stat.completed,
                 expected: stat.expected,
                 rate: stat.rate,
-                badge: badge
+                badge: badge,
+                currentStreak: stat.currentStreak,
+                bestStreak: stat.bestStreak
             )
         }
         .sorted { $0.completed > $1.completed }
@@ -344,6 +371,107 @@ final class StatsCalculator {
         )
     }
 
+    private func topYearlyStreaks(
+        interval: DateInterval,
+        referenceDate: Date,
+        habits: [StatsHabitSnapshot],
+        completionMap: [UUID: [Date: Int]],
+        isCurrentPeriod: Bool
+    ) -> [StatsStreakSummary] {
+        let yearStart = calendar.startOfDay(for: interval.start)
+        let yearEnd = calendar.startOfDay(for: interval.end)
+        let referenceDay = calendar.startOfDay(for: referenceDate)
+        let rangeEnd = isCurrentPeriod
+            ? min(calendar.date(byAdding: .day, value: 1, to: referenceDay) ?? yearEnd, yearEnd)
+            : yearEnd
+
+        var summaries: [StatsStreakSummary] = []
+        for habit in habits {
+            let historyStart = calendar.startOfDay(for: habit.createdAt)
+            let historyInterval = DateInterval(start: historyStart, end: rangeEnd)
+            let scheduledStats = scheduledDayStats(for: habit, interval: historyInterval, completionMap: completionMap)
+            let segments = streakSegments(from: scheduledStats, rangeEnd: rangeEnd)
+            for segment in segments where segment.endDate >= yearStart && segment.startDate < yearEnd {
+                summaries.append(StatsStreakSummary(
+                    habitId: habit.id,
+                    habitName: habit.name,
+                    startDate: segment.startDate,
+                    endDate: segment.endDate,
+                    lengthDays: segment.lengthDays,
+                    isActive: isCurrentPeriod ? segment.isActive : false
+                ))
+            }
+        }
+
+        return summaries
+            .sorted {
+                if $0.lengthDays == $1.lengthDays {
+                    return $0.endDate > $1.endDate
+                }
+                return $0.lengthDays > $1.lengthDays
+            }
+            .prefix(3)
+            .map { $0 }
+    }
+
+    private func scheduledDayStats(
+        for habit: StatsHabitSnapshot,
+        interval: DateInterval,
+        completionMap: [UUID: [Date: Int]]
+    ) -> [StatsDayStat] {
+        guard interval.start < interval.end else { return [] }
+        var stats: [StatsDayStat] = []
+        var day = calendar.startOfDay(for: interval.start)
+        let endDay = calendar.startOfDay(for: interval.end)
+        while day < endDay {
+            let expected = expectedCount(for: habit, on: day)
+            if expected > 0 {
+                let completed = min(1, completionMap[habit.id]?[day] ?? 0)
+                stats.append(StatsDayStat(date: day, completed: completed, expected: expected))
+            }
+            guard let nextDay = calendar.date(byAdding: .day, value: 1, to: day) else { break }
+            day = nextDay
+        }
+        return stats
+    }
+
+    private func streakSegments(from stats: [StatsDayStat], rangeEnd: Date) -> [StreakSegment] {
+        guard !stats.isEmpty else { return [] }
+        let sorted = stats.sorted { $0.date < $1.date }
+        var segments: [StreakSegment] = []
+        var currentStart: Date?
+        var currentEnd: Date?
+
+        for stat in sorted {
+            if stat.completed >= stat.expected, stat.expected > 0 {
+                if currentStart == nil {
+                    currentStart = stat.date
+                }
+                currentEnd = stat.date
+            } else {
+                if let start = currentStart, let end = currentEnd {
+                    segments.append(makeSegment(start: start, end: end, isActive: false))
+                }
+                currentStart = nil
+                currentEnd = nil
+            }
+        }
+
+        if let start = currentStart, let end = currentEnd {
+            let lastDay = sorted.last?.date
+            let isActive = lastDay != nil && calendar.isDate(end, inSameDayAs: lastDay ?? end)
+                && end < rangeEnd
+            segments.append(makeSegment(start: start, end: end, isActive: isActive))
+        }
+
+        return segments
+    }
+
+    private func makeSegment(start: Date, end: Date, isActive: Bool) -> StreakSegment {
+        let days = (calendar.dateComponents([.day], from: start, to: end).day ?? 0) + 1
+        return StreakSegment(startDate: start, endDate: end, lengthDays: max(days, 1), isActive: isActive)
+    }
+
     private func monthExtremes(from dayStats: [StatsDayStat]) -> (String?, String?) {
         var monthlyTotals: [Int: (completed: Int, expected: Int)] = [:]
         for stat in dayStats {
@@ -383,6 +511,13 @@ private extension Array where Element == String {
         guard indices.contains(index) else { return nil }
         return self[index]
     }
+}
+
+private struct StreakSegment {
+    let startDate: Date
+    let endDate: Date
+    let lengthDays: Int
+    let isActive: Bool
 }
 
 private struct StatsMetrics {

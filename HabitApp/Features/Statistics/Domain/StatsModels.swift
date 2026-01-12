@@ -16,10 +16,13 @@ struct StatsHabitStat: Identifiable {
     var id: UUID { habitId }
     let habitId: UUID
     let name: String
+    let isArchived: Bool
     let completed: Int
     let expected: Int
     let rate: Double?
     let badge: StatsHabitBadge?
+    let currentStreak: Int
+    let bestStreak: Int
 }
 
 struct StatsHabitDayStatus: Identifiable {
@@ -28,6 +31,16 @@ struct StatsHabitDayStatus: Identifiable {
     let name: String
     let completed: Int
     let expected: Int
+}
+
+struct StatsStreakSummary: Identifiable {
+    var id: String { "\(habitId.uuidString)-\(startDate.timeIntervalSince1970)" }
+    let habitId: UUID
+    let habitName: String
+    let startDate: Date
+    let endDate: Date
+    let lengthDays: Int
+    let isActive: Bool
 }
 
 struct StatsComparison {
@@ -56,6 +69,7 @@ struct StatsRecap {
     let currentStreak: Int
     let bestStreak: Int
     let comparison: StatsComparison?
+    let annualTopStreaks: [StatsStreakSummary]
     let highlights: [String]
     let primaryHighlight: String
 }

@@ -32,7 +32,10 @@ final class RecapDetailViewModel: ObservableObject {
             let habits = try await dependencies.habitDataSource.fetchHabits()
             let interval = period.interval(containing: referenceDate, calendar: dependencies.calendar)
             let previous = period.previousInterval(from: referenceDate, calendar: dependencies.calendar)
-            let overall = DateInterval(start: min(interval.start, previous.start), end: max(interval.end, previous.end))
+            let earliestHabit = habits.map(\.createdAt).min() ?? interval.start
+            let overallStart = min(interval.start, min(previous.start, dependencies.calendar.startOfDay(for: earliestHabit)))
+            let overallEnd = max(interval.end, previous.end)
+            let overall = DateInterval(start: overallStart, end: overallEnd)
             let completions = try await dependencies.completionDataSource.completions(in: overall)
             let completionMap = calculator.completionMap(from: completions)
             let period = period

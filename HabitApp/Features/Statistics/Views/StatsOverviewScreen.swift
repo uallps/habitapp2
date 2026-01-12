@@ -3,6 +3,8 @@ import SwiftUI
 struct StatsOverviewScreen: View {
     @StateObject private var viewModel: StatsOverviewViewModel
     private let dependencies: StatisticsDependencies
+    @State private var quickViewSelectedHabitId: UUID? = nil
+    @State private var showArchivedInQuickView: Bool = false
 
     init(dependencies: StatisticsDependencies) {
         self.dependencies = dependencies
@@ -90,16 +92,33 @@ struct StatsOverviewScreen: View {
             }
 
             GroupBox("Vista rapida") {
-                StatsQuickCalendarView(
-                    recap: viewModel.quickViewRecap,
-                    monthDate: viewModel.quickViewMonth,
-                    isLoading: viewModel.isQuickViewLoading,
-                    calendar: dependencies.calendar,
-                    selectedDate: $viewModel.quickViewSelectedDate,
-                    onMoveMonth: { offset in
-                        viewModel.moveQuickViewMonth(by: offset)
+                VStack(alignment: .leading, spacing: 12) {
+                    if !viewModel.habits.isEmpty {
+                        StatsHabitFilterView(
+                            habits: viewModel.habits.map { habit in
+                                StatsHabitOption(
+                                    id: habit.id,
+                                    name: habit.name,
+                                    isArchived: habit.archivedAt != nil
+                                )
+                            },
+                            selectedHabitId: $quickViewSelectedHabitId,
+                            showArchived: $showArchivedInQuickView
+                        )
                     }
-                )
+
+                    StatsQuickCalendarView(
+                        recap: viewModel.quickViewRecap,
+                        monthDate: viewModel.quickViewMonth,
+                        isLoading: viewModel.isQuickViewLoading,
+                        calendar: dependencies.calendar,
+                        selectedDate: $viewModel.quickViewSelectedDate,
+                        selectedHabitId: $quickViewSelectedHabitId,
+                        onMoveMonth: { offset in
+                            viewModel.moveQuickViewMonth(by: offset)
+                        }
+                    )
+                }
             }
         }
     }

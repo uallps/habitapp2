@@ -6,6 +6,7 @@ struct StatsQuickCalendarView: View {
     let isLoading: Bool
     let calendar: Calendar
     @Binding var selectedDate: Date
+    @Binding var selectedHabitId: UUID?
     let onMoveMonth: (Int) -> Void
 
     var body: some View {
@@ -39,7 +40,7 @@ struct StatsQuickCalendarView: View {
             } else if let recap {
                 MonthlyCalendarPreviewView(
                     interval: recap.interval,
-                    dayStats: recap.dayStats,
+                    dayStats: filteredDayStats(from: recap),
                     calendar: calendar,
                     selectedDate: $selectedDate
                 )
@@ -69,7 +70,28 @@ struct StatsQuickCalendarView: View {
             return nil
         }
         let statuses = recap.dayHabitStatuses[calendar.startOfDay(for: day)] ?? []
+        if let habitId = selectedHabitId {
+            let filtered = statuses.filter { $0.habitId == habitId }
+            guard !filtered.isEmpty else { return nil }
+            let completed = filtered.map(\.completed).reduce(0, +)
+            let expected = filtered.map(\.expected).reduce(0, +)
+            return StatsDayDetail(date: day, completed: completed, expected: expected, habits: filtered)
+        }
         return StatsDayDetail(date: day, completed: dayStat.completed, expected: dayStat.expected, habits: statuses)
+    }
+
+    private func filteredDayStats(from recap: StatsRecap) -> [StatsDayStat] {
+        guard let habitId = selectedHabitId else {
+            return recap.dayStats
+        }
+        return recap.dayStats.map { stat in
+            let day = calendar.startOfDay(for: stat.date)
+            let statuses = recap.dayHabitStatuses[day] ?? []
+            if let status = statuses.first(where: { $0.habitId == habitId }) {
+                return StatsDayStat(date: stat.date, completed: status.completed, expected: status.expected)
+            }
+            return StatsDayStat(date: stat.date, completed: 0, expected: 0)
+        }
     }
 }
 

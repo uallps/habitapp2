@@ -10,6 +10,7 @@ final class StatsOverviewViewModel: ObservableObject {
     @Published var quickViewSelectedDate: Date
     @Published private(set) var quickViewRecap: StatsRecap?
     @Published private(set) var isQuickViewLoading: Bool = false
+    @Published private(set) var habits: [StatsHabitSnapshot] = []
 
     private let dependencies: StatisticsDependencies
     private let calculator: StatsCalculator
@@ -48,13 +49,14 @@ final class StatsOverviewViewModel: ObservableObject {
         do {
             let habits = try await dependencies.habitDataSource.fetchHabits()
             cachedHabits = habits
+            self.habits = habits
             if habits.isEmpty {
                 state = .empty("No hay habitos activos")
                 quickViewRecap = nil
                 return
             }
 
-            let overallInterval = overallInterval(for: referenceDate)
+            let overallInterval = overallInterval(for: referenceDate, habits: habits)
             let completions = try await dependencies.completionDataSource.completions(in: overallInterval)
             let completionMap = calculator.completionMap(from: completions)
             let referenceDate = referenceDate
@@ -111,6 +113,7 @@ final class StatsOverviewViewModel: ObservableObject {
         do {
             let habits = cachedHabits.isEmpty ? try await dependencies.habitDataSource.fetchHabits() : cachedHabits
             cachedHabits = habits
+            self.habits = habits
             let interval = StatsPeriod.monthly.interval(containing: monthDate, calendar: dependencies.calendar)
             let previous = StatsPeriod.monthly.previousInterval(from: monthDate, calendar: dependencies.calendar)
             let overall = DateInterval(start: previous.start, end: interval.end)
@@ -137,7 +140,7 @@ final class StatsOverviewViewModel: ObservableObject {
         return .loaded(StatsOverviewContent(recaps: recaps))
     }
 
-    private func overallInterval(for referenceDate: Date) -> DateInterval {
+    private func overallInterval(for referenceDate: Date, habits: [StatsHabitSnapshot]) -> DateInterval {
         var earliestStart = StatsPeriod.daily.interval(containing: referenceDate, calendar: dependencies.calendar).start
         var latestEnd = StatsPeriod.daily.interval(containing: referenceDate, calendar: dependencies.calendar).end
 
@@ -146,6 +149,9 @@ final class StatsOverviewViewModel: ObservableObject {
             let previous = period.previousInterval(from: referenceDate, calendar: dependencies.calendar)
             earliestStart = min(earliestStart, previous.start)
             latestEnd = max(latestEnd, current.end)
+        }
+        if let earliestHabit = habits.map(\.createdAt).min() {
+            earliestStart = min(earliestStart, dependencies.calendar.startOfDay(for: earliestHabit))
         }
         return DateInterval(start: earliestStart, end: latestEnd)
     }
