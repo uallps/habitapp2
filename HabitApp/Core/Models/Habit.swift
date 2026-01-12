@@ -1,4 +1,4 @@
-﻿//
+//
 //  Habit.swift
 //  HabitApp
 //
@@ -44,17 +44,35 @@ final class Habit: Identifiable, Codable {
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(UUID.self, forKey: .id)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.frequency = try container.decode(HabitFrequency.self, forKey: .frequency)
-        self.isCompletedToday = try container.decode(Bool.self, forKey: .isCompletedToday)
-        self.lastCompletionDate = try container.decodeIfPresent(Date.self, forKey: .lastCompletionDate)
-        self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
+
+        // 1) decode into locals (NO self access)
+        let decodedId = try container.decode(UUID.self, forKey: .id)
+        let decodedName = try container.decode(String.self, forKey: .name)
+        let decodedFrequency = try container.decode(HabitFrequency.self, forKey: .frequency)
+        let decodedIsCompletedToday = try container.decode(Bool.self, forKey: .isCompletedToday)
+        let decodedLastCompletionDate = try container.decodeIfPresent(Date.self, forKey: .lastCompletionDate)
+        let decodedCreatedAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         let decodedWeeklyDays = try container.decodeIfPresent([Int].self, forKey: .weeklyDays) ?? []
-        let defaultWeekday = Calendar.current.component(.weekday, from: createdAt)
-        self.weeklyDays = decodedWeeklyDays.isEmpty && frequency == .weekly ? [defaultWeekday] : decodedWeeklyDays
-        self.archivedAt = try container.decodeIfPresent(Date.self, forKey: .archivedAt)
+        let decodedArchivedAt = try container.decodeIfPresent(Date.self, forKey: .archivedAt)
+
+        // 2) compute using locals (NO self access)
+        let defaultWeekday = Calendar.current.component(.weekday, from: decodedCreatedAt)
+        let finalWeeklyDays =
+            (decodedWeeklyDays.isEmpty && decodedFrequency == .weekly)
+            ? [defaultWeekday]
+            : decodedWeeklyDays
+
+        // 3) assign to self (now safe)
+        self.id = decodedId
+        self.name = decodedName
+        self.frequency = decodedFrequency
+        self.isCompletedToday = decodedIsCompletedToday
+        self.lastCompletionDate = decodedLastCompletionDate
+        self.weeklyDays = finalWeeklyDays
+        self.archivedAt = decodedArchivedAt
+        self.createdAt = decodedCreatedAt
     }
+
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
