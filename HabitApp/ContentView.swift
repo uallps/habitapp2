@@ -1,21 +1,8 @@
-//
-//  ContentView.swift
-//  HabitApp
-//
-//  Created by Aula03 on 15/10/25.
-//
-
-import SwiftUI
+﻿import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("HabitApp!")
-        }
-        .padding()
+        HabitListView(storageProvider: MockStorageProvider())
     }
 }
 
