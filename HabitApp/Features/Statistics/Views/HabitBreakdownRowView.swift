@@ -12,7 +12,7 @@ struct HabitBreakdownRowView: View {
                 Text("\(stat.completed)/\(stat.expected)")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Text("Racha del habito: \(stat.currentStreak) / Mejor: \(stat.bestStreak)")
+                Text("Racha del habito: \(stat.currentStreak) | Mejor: \(stat.bestStreak)")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }

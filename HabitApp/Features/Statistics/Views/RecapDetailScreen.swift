@@ -134,6 +134,7 @@ struct RecapDetailScreen: View {
                 case .daily:
                     if let detail = dayDetail(for: recap) {
                         DayDetailView(detail: detail, calendar: calendar)
+                            .id(detailRenderKey(for: detail))
                     } else {
                         Text("Sin habitos programados")
                             .font(.caption)
@@ -164,8 +165,10 @@ struct RecapDetailScreen: View {
                             selectedDate: $viewModel.selectedDate,
                             calendar: calendar
                         )
+                        .id(monthlyCalendarRenderKey)
                         if let detail = dayDetail(for: recap) {
                             DayDetailView(detail: detail, calendar: calendar)
+                                .id(detailRenderKey(for: detail))
                         }
                     }
                 case .yearly:
@@ -296,6 +299,22 @@ struct RecapDetailScreen: View {
             }
             return StatsDayStat(date: stat.date, completed: 0, expected: 0)
         }
+    }
+
+    private var monthlyCalendarRenderKey: String {
+        let monthKey = String(Int(recapMonthAnchor.timeIntervalSince1970))
+        let habitKey = selectedHabitId?.uuidString ?? "all"
+        return "\(monthKey)-\(habitKey)"
+    }
+
+    private var recapMonthAnchor: Date {
+        calendar.dateInterval(of: .month, for: viewModel.selectedDate)?.start ?? viewModel.selectedDate
+    }
+
+    private func detailRenderKey(for detail: StatsDayDetail) -> String {
+        let dayKey = String(Int(detail.date.timeIntervalSince1970))
+        let habitKey = selectedHabitId?.uuidString ?? "all"
+        return "\(dayKey)-\(habitKey)"
     }
 
     @ViewBuilder

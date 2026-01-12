@@ -44,9 +44,11 @@ struct StatsQuickCalendarView: View {
                     calendar: calendar,
                     selectedDate: $selectedDate
                 )
+                .id(calendarRenderKey)
 
                 if let detail = dayDetail(from: recap) {
                     DayDetailView(detail: detail, calendar: calendar)
+                        .id(detailRenderKey(for: detail))
                 }
             } else {
                 Text("Sin datos para mostrar")
@@ -92,6 +94,18 @@ struct StatsQuickCalendarView: View {
             }
             return StatsDayStat(date: stat.date, completed: 0, expected: 0)
         }
+    }
+
+    private var calendarRenderKey: String {
+        let monthKey = String(Int(monthDate.timeIntervalSince1970))
+        let habitKey = selectedHabitId?.uuidString ?? "all"
+        return "\(monthKey)-\(habitKey)"
+    }
+
+    private func detailRenderKey(for detail: StatsDayDetail) -> String {
+        let dayKey = String(Int(detail.date.timeIntervalSince1970))
+        let habitKey = selectedHabitId?.uuidString ?? "all"
+        return "\(dayKey)-\(habitKey)"
     }
 }
 
