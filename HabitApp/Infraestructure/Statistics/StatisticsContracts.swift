@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 enum StatsHabitFrequency: String, Codable, CaseIterable {
@@ -38,3 +39,5 @@ struct StatisticsDependencies {
     let completionDataSource: CompletionStatsDataSource
     let calendar: Calendar
 }
+
+#endif

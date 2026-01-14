@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 ﻿import SwiftUI
 
 struct HabitCategoryDetailView: View {
@@ -14,3 +15,5 @@ struct HabitCategoryDetailView: View {
         }
     }
 }
+
+#endif

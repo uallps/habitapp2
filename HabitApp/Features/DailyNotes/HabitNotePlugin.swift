@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_NOTES
 import Foundation
 import SwiftUI
 import SwiftData
@@ -53,3 +54,5 @@ final class HabitNotePlugin: DataPlugin, ViewPlugin {
         }
     }
 }
+
+#endif

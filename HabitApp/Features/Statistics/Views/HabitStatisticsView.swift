@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 ﻿import SwiftUI
 
 struct HabitStatisticsView: View {
@@ -26,3 +27,5 @@ struct HabitStatisticsView: View {
         }
     }
 }
+
+#endif

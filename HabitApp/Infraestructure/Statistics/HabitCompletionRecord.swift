@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import Foundation
 import SwiftData
 
@@ -15,3 +16,5 @@ final class HabitCompletionRecord: Identifiable {
         self.count = count
     }
 }
+
+#endif

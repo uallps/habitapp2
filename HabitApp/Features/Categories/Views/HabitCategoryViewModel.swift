@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 import Foundation
 import Combine
 
@@ -44,3 +45,5 @@ final class HabitCategoryViewModel: ObservableObject {
         assignment?.category
     }
 }
+
+#endif

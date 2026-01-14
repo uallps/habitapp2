@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct StatsHabitOption: Identifiable, Hashable {
@@ -29,3 +30,5 @@ struct StatsHabitFilterView: View {
         habit.isArchived ? "\(habit.name) (Archivado)" : habit.name
     }
 }
+
+#endif

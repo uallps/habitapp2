@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 enum StatsDateFormatter {
@@ -41,3 +42,5 @@ enum StatsDateFormatter {
         return formatter
     }
 }
+
+#endif

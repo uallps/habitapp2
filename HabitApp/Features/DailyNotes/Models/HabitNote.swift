@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_NOTES
 ﻿import Foundation
 import SwiftData
 
@@ -50,3 +51,5 @@ final class HabitNote: Identifiable, Codable {
         try container.encode(dayIdentifier, forKey: .dayIdentifier)
     }
 }
+
+#endif

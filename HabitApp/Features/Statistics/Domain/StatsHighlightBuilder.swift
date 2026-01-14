@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 struct StatsHighlightBuilder {
@@ -162,3 +163,5 @@ private enum PastHighlightType {
     case good
     case low
 }
+
+#endif

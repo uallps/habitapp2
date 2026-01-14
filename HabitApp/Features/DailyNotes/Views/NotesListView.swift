@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_NOTES
 ﻿import SwiftUI
 
 struct NotesListView: View {
@@ -82,3 +83,5 @@ struct NotesListView: View {
 #Preview {
     NotesListView(storageProvider: MockStorageProvider())
 }
+
+#endif

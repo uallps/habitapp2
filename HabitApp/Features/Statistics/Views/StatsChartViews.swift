@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct BarEntry: Identifiable {
@@ -51,3 +52,5 @@ struct BarChartView: View {
         return Color.orange.opacity(0.7)
     }
 }
+
+#endif

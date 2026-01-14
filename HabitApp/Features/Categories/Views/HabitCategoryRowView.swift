@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 ﻿import SwiftUI
 
 struct HabitCategoryRowView: View {
@@ -11,3 +12,5 @@ struct HabitCategoryRowView: View {
         }
     }
 }
+
+#endif

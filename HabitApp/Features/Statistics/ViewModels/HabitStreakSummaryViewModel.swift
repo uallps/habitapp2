@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import Foundation
 import Combine
 
@@ -56,3 +57,5 @@ final class HabitStreakSummaryViewModel: ObservableObject {
         )
     }
 }
+
+#endif

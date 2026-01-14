@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 import Combine
 
@@ -45,3 +46,5 @@ struct DayDetailView: View {
         return formatter.string(from: detail.date)
     }
 }
+
+#endif

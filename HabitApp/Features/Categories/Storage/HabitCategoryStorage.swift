@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 ﻿import Foundation
 import SwiftData
 
@@ -37,3 +38,5 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         }
     }
 }
+
+#endif

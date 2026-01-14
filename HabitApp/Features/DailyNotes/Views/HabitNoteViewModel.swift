@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_NOTES
 import Foundation
 import Combine
 
@@ -45,3 +46,5 @@ final class HabitNoteViewModel: ObservableObject {
         }
     }
 }
+
+#endif

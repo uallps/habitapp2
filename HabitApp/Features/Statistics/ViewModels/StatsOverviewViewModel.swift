@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import Foundation
 import Combine
 
@@ -164,3 +165,5 @@ final class StatsOverviewViewModel: ObservableObject {
 struct StatsOverviewContent {
     let recaps: [StatsPeriod: StatsRecap]
 }
+
+#endif

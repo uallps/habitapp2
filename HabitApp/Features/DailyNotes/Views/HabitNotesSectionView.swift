@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_NOTES
 import SwiftUI
 
 struct HabitNotesSectionView: View {
@@ -85,3 +86,5 @@ struct HabitNotesSectionView: View {
         .buttonStyle(.plain)
     }
 }
+
+#endif

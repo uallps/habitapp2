@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 import Combine
 
@@ -66,3 +67,5 @@ struct HabitStreakDetailSummaryView: View {
         }
     }
 }
+
+#endif

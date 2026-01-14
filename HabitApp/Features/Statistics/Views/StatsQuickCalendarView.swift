@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct StatsQuickCalendarView: View {
@@ -208,3 +209,5 @@ private struct MonthlyCalendarPreviewView: View {
         return Color.orange.opacity(0.25)
     }
 }
+
+#endif
