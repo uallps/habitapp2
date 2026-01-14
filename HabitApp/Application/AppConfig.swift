@@ -9,6 +9,7 @@ import Combine
 import SwiftUI
 import SwiftData
 
+@MainActor
 final class AppConfig: ObservableObject {
     @AppStorage("enableDailyNotes")
     var enableDailyNotes: Bool = false
