@@ -17,6 +17,11 @@ final class HabitCategoryViewModel: ObservableObject {
     func load() async {
         do {
             assignment = try await storage.category(for: habit.id)
+            // Si no existe asignación, crear una por defecto
+            if assignment == nil {
+                assignment = HabitCategoryAssignment(habitId: habit.id, category: .wellness)
+                try await storage.save(assignment!)
+            }
         } catch {
             print("Category load error: \(error)")
         }

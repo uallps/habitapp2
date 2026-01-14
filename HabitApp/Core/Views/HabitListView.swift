@@ -6,6 +6,11 @@ struct HabitListView: View {
     @State private var newHabitId: UUID?
     @State private var showArchived: Bool = false
 
+#if PREMIUM || PLUGIN_CATEGORIES
+    @State private var selectedCategoryFilter: HabitCategory?
+    @State private var filteredHabitIds: Set<UUID>?
+#endif
+
     init(storageProvider: StorageProvider) {
         _viewModel = StateObject(wrappedValue: HabitListViewModel(storageProvider: storageProvider))
     }
@@ -13,14 +18,47 @@ struct HabitListView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ZStack(alignment: .bottomTrailing) {
-                List {
-                    ForEach(activeIndices, id: \.self) { index in
-                        habitRow(habit: $viewModel.habits[index])
+                VStack(spacing: 0) {
+#if PREMIUM || PLUGIN_CATEGORIES
+                    if BuildFeatures.supportsCategories {
+                        CategoryFilterBar(selectedCategory: $selectedCategoryFilter)
+                            .onChange(of: selectedCategoryFilter) { _, newValue in
+                                Task { await updateCategoryFilter(newValue) }
+                            }
                     }
-                    .onDelete { indexSet in
-                        Task {
-                            let indices = indexSet.map { activeIndices[$0] }
-                            await viewModel.removeHabits(atOffsets: IndexSet(indices))
+#endif
+                List {
+                    if activeIndices.isEmpty {
+#if PREMIUM || PLUGIN_CATEGORIES
+                        if selectedCategoryFilter != nil {
+                            ContentUnavailableView(
+                                "Sin hábitos",
+                                systemImage: "tray",
+                                description: Text("No hay hábitos en esta categoría")
+                            )
+                        } else {
+                            ContentUnavailableView(
+                                "Sin hábitos",
+                                systemImage: "checklist",
+                                description: Text("Añade tu primer hábito")
+                            )
+                        }
+#else
+                        ContentUnavailableView(
+                            "Sin hábitos",
+                            systemImage: "checklist",
+                            description: Text("Añade tu primer hábito")
+                        )
+#endif
+                    } else {
+                        ForEach(activeIndices, id: \.self) { index in
+                            habitRow(habit: $viewModel.habits[index])
+                        }
+                        .onDelete { indexSet in
+                            Task {
+                                let indices = indexSet.map { activeIndices[$0] }
+                                await viewModel.removeHabits(atOffsets: IndexSet(indices))
+                            }
                         }
                     }
 
@@ -39,6 +77,7 @@ struct HabitListView: View {
                         }
                     }
                 }
+                } // End VStack
 
                 Button {
                     showArchived.toggle()
@@ -138,12 +177,37 @@ struct HabitListView: View {
     }
 
     private var activeIndices: [Int] {
-        viewModel.habits.indices.filter { !viewModel.habits[$0].isArchived }
+        viewModel.habits.indices.filter { index in
+            let habit = viewModel.habits[index]
+            guard !habit.isArchived else { return false }
+#if PREMIUM || PLUGIN_CATEGORIES
+            if let filterIds = filteredHabitIds {
+                return filterIds.contains(habit.id)
+            }
+#endif
+            return true
+        }
     }
 
     private var archivedIndices: [Int] {
         viewModel.habits.indices.filter { viewModel.habits[$0].isArchived }
     }
+
+#if PREMIUM || PLUGIN_CATEGORIES
+    private func updateCategoryFilter(_ category: HabitCategory?) async {
+        guard let category else {
+            filteredHabitIds = nil
+            return
+        }
+        let storage = HabitCategorySwiftDataStorage()
+        do {
+            filteredHabitIds = try await storage.habitIds(for: category)
+        } catch {
+            print("Error loading category filter: \(error)")
+            filteredHabitIds = nil
+        }
+    }
+#endif
 }
 
 #Preview {

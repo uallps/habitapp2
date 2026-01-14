@@ -1,6 +1,10 @@
-﻿import Foundation
+import Foundation
 import SwiftData
+import SwiftUI
 
+/// Modelo que representa la asignación de una categoría a un hábito.
+/// Cada hábito puede tener una única categoría asignada.
+/// Se persiste usando SwiftData y se relaciona con Habit mediante habitId.
 @Model
 final class HabitCategoryAssignment: Identifiable, Codable {
     private enum CodingKeys: CodingKey { case id, habitId, category }
@@ -30,11 +34,18 @@ final class HabitCategoryAssignment: Identifiable, Codable {
     }
 }
 
+/// Categorías predefinidas para clasificar hábitos.
+/// Cada categoría tiene un nombre localizado, un icono SF Symbol y un color distintivo.
 enum HabitCategory: String, CaseIterable, Identifiable, Codable {
+    /// Hábitos de autocuidado y bienestar personal
     case wellness = "Bienestar"
+    /// Hábitos relacionados con salud física (ejercicio, alimentación)
     case health = "Salud"
+    /// Hábitos de estudio y aprendizaje continuo
     case learning = "Aprendizaje"
+    /// Hábitos de productividad y organización
     case productivity = "Productividad"
+    /// Categoría general para hábitos sin clasificación específica
     case other = "Otro"
 
     var id: String { rawValue }
@@ -46,6 +57,16 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
         case .learning: return "book.fill"
         case .productivity: return "bolt.fill"
         case .other: return "square.grid.2x2"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .wellness: return .purple
+        case .health: return .red
+        case .learning: return .blue
+        case .productivity: return .orange
+        case .other: return .gray
         }
     }
 }
