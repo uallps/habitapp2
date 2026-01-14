@@ -1,6 +1,8 @@
 #if PREMIUM || PLUGIN_CATEGORIES
 import SwiftUI
 import SwiftData
+import Combine
+import UIKit
 
 /// Vista de resumen que muestra todas las categorías con estadísticas.
 /// Presenta una visión general del progreso de hábitos organizados por categoría.
@@ -47,7 +49,7 @@ struct CategorySummaryView: View {
                 }
                 .padding(.vertical)
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Color(uiColor: .systemGroupedBackground))
             .navigationTitle("Resumen")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -83,7 +85,6 @@ struct CategorySummaryView: View {
                         .foregroundColor(.secondary)
                     Text("\(viewModel.totalHabits)")
                         .font(.system(size: 42, weight: .bold, design: .rounded))
-                        .contentTransition(.numericText())
                 }
                 Spacer()
                 CircularProgressView(
@@ -105,7 +106,6 @@ struct CategorySummaryView: View {
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundColor(.accentColor)
-                        .contentTransition(.numericText())
                 }
 
                 GeometryReader { geometry in
@@ -124,7 +124,7 @@ struct CategorySummaryView: View {
             }
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
@@ -192,7 +192,6 @@ private struct CategoryStatCard: View {
                 Text("\(stat.habitCount)")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(stat.category.color)
-                    .contentTransition(.numericText())
             }
 
             // Nombre y descripción
@@ -223,8 +222,7 @@ private struct CategoryStatCard: View {
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(stat.category.color)
-                        .contentTransition(.numericText())
-                }
+                                        }
 
                 // Barra de progreso personalizada
                 GeometryReader { geometry in
@@ -243,7 +241,7 @@ private struct CategoryStatCard: View {
             }
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
         .cornerRadius(14)
         .shadow(color: .black.opacity(0.02), radius: 4, x: 0, y: 2)
         .scaleEffect(isPressed ? 0.97 : 1)
@@ -283,8 +281,7 @@ struct CircularProgressView: View {
                 Text("\(Int(min(progress, 1.0) * 100))%")
                     .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
                     .foregroundColor(color)
-                    .contentTransition(.numericText())
-            }
+                                }
         }
         .frame(width: size, height: size)
         .accessibilityLabel("\(Int(progress * 100)) por ciento completado")

@@ -18,7 +18,7 @@ struct HabitCategoryRowView: View {
                     CategoryBadge(category: category)
                         .transition(.scale.combined(with: .opacity))
                 }
-            case .error:
+            case .error(_):
                 // No mostrar nada en caso de error
                 EmptyView()
             }
@@ -104,12 +104,6 @@ struct CategoryBadge: View {
                 CategoryBadge(category: category, isCompact: true)
             }
         }
-
-        Divider()
-
-        Text("Placeholder de carga")
-            .font(.headline)
-        CategoryBadgePlaceholder()
     }
     .padding()
 }
