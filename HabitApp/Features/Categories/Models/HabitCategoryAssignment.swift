@@ -12,19 +12,24 @@ final class HabitCategoryAssignment: Identifiable, Codable {
 
     private(set) var id: UUID
     var habitId: UUID
-    var category: HabitCategory
+    var category: String
+
+    var categoryValue: HabitCategory {
+        get { HabitCategory.from(rawValue: category) }
+        set { category = newValue.rawValue }
+    }
 
     init(habitId: UUID, category: HabitCategory = .wellness) {
         self.id = UUID()
         self.habitId = habitId
-        self.category = category
+        self.category = category.rawValue
     }
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         habitId = try container.decode(UUID.self, forKey: .habitId)
-        category = try container.decode(HabitCategory.self, forKey: .category)
+        category = try container.decode(String.self, forKey: .category)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -50,6 +55,23 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
     case other = "Otro"
 
     var id: String { rawValue }
+
+    static func from(rawValue: String) -> HabitCategory {
+        switch rawValue {
+        case Self.wellness.rawValue, "wellness":
+            return .wellness
+        case Self.health.rawValue, "health":
+            return .health
+        case Self.learning.rawValue, "learning":
+            return .learning
+        case Self.productivity.rawValue, "productivity":
+            return .productivity
+        case Self.other.rawValue, "other":
+            return .other
+        default:
+            return .other
+        }
+    }
 
     var icon: String {
         switch self {
