@@ -24,6 +24,25 @@ final class AppConfig: ObservableObject {
 
     private var plugins: [FeaturePlugin] = []
 
+    var isPremiumEnabled: Bool {
+        BuildFeatures.isPremiumBuild && isPremium
+    }
+
+    var isDailyNotesEnabled: Bool {
+        guard BuildFeatures.supportsDailyNotes else { return false }
+        return BuildFeatures.isPremiumBuild ? (isPremium && enableDailyNotes) : true
+    }
+
+    var isCategoriesEnabled: Bool {
+        guard BuildFeatures.supportsCategories else { return false }
+        return BuildFeatures.isPremiumBuild ? (isPremium && enableCategories) : true
+    }
+
+    var isStatisticsEnabled: Bool {
+        guard BuildFeatures.supportsStatistics else { return false }
+        return BuildFeatures.isPremiumBuild ? (isPremium && enableStatistics) : true
+    }
+
     init() {
         PluginRegistry.shared.clearAll()
         let discoveredPlugins = PluginDiscovery.discoverPlugins()
@@ -34,11 +53,14 @@ final class AppConfig: ObservableObject {
     }
 
     private lazy var swiftDataProvider: HabitSwiftDataStorageProvider = {
-        var schemas: [any PersistentModel.Type] = [Habit.self, HabitCompletionRecord.self]
+        var schemas: [any PersistentModel.Type] = [Habit.self]
         var seen: Set<ObjectIdentifier> = [
-            ObjectIdentifier(Habit.self),
-            ObjectIdentifier(HabitCompletionRecord.self)
+            ObjectIdentifier(Habit.self)
         ]
+#if PREMIUM || PLUGIN_STATS
+        schemas.append(HabitCompletionRecord.self)
+        seen.insert(ObjectIdentifier(HabitCompletionRecord.self))
+#endif
         for plugin in plugins {
             for model in plugin.models {
                 let identifier = ObjectIdentifier(model)
@@ -56,6 +78,7 @@ final class AppConfig: ObservableObject {
         swiftDataProvider
     }
 
+#if PREMIUM || PLUGIN_STATS
     lazy var statisticsDependencies: StatisticsDependencies = {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale.current
@@ -68,4 +91,5 @@ final class AppConfig: ObservableObject {
             calendar: calendar
         )
     }()
+#endif
 }

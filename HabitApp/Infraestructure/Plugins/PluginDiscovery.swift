@@ -23,26 +23,36 @@ enum PluginDiscovery {
         }
 
         if plugins.isEmpty {
-            plugins = [
-                HabitCategoryPlugin.self,
-                HabitNotePlugin.self,
-                HabitStatisticsPlugin.self
-            ]
+#if PREMIUM || PLUGIN_CATEGORIES
+            plugins.append(HabitCategoryPlugin.self)
+#endif
+#if PREMIUM || PLUGIN_NOTES
+            plugins.append(HabitNotePlugin.self)
+#endif
+#if PREMIUM || PLUGIN_STATS
+            plugins.append(HabitStatisticsPlugin.self)
+#endif
         }
 
         return plugins.sorted { priority(for: $0) < priority(for: $1) }
     }
 
     private static func priority(for plugin: FeaturePlugin.Type) -> Int {
-        switch plugin {
-        case is HabitCategoryPlugin.Type:
+#if PREMIUM || PLUGIN_CATEGORIES
+        if plugin is HabitCategoryPlugin.Type {
             return 20
-        case is HabitNotePlugin.Type:
-            return 30
-        case is HabitStatisticsPlugin.Type:
-            return 40
-        default:
-            return 100
         }
+#endif
+#if PREMIUM || PLUGIN_NOTES
+        if plugin is HabitNotePlugin.Type {
+            return 30
+        }
+#endif
+#if PREMIUM || PLUGIN_STATS
+        if plugin is HabitStatisticsPlugin.Type {
+            return 40
+        }
+#endif
+        return 100
     }
 }

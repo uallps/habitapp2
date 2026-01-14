@@ -11,7 +11,7 @@ final class HabitNotePlugin: DataPlugin, ViewPlugin {
     }
 
     var models: [any PersistentModel.Type] { [HabitNote.self] }
-    var isEnabled: Bool { config.isPremium && config.enableDailyNotes }
+    var isEnabled: Bool { config.isDailyNotesEnabled }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }

@@ -1,0 +1,50 @@
+name: Build HabitApp Variants
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.scheme }} for ${{ matrix.platform }}
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [iOS, macOS]
+        scheme:
+          - HabitAppBasic
+          - HabitAppPremium
+          - HabitAppBasicNotes
+          - HabitAppBasicStats
+          - HabitAppBasicCategories
+        include:
+          - platform: iOS
+            sdk: iphonesimulator
+            destination: "platform=iOS Simulator,name=iPhone 15"
+          - platform: macOS
+            sdk: macosx
+            destination: "platform=macOS"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Build (${{ matrix.platform }})
+        run: |
+          xcodebuild clean build             -project HabitApp.xcodeproj             -scheme "${{ matrix.scheme }}"             -configuration Release             -sdk ${{ matrix.sdk }}             -destination "${{ matrix.destination }}"             -derivedDataPath "./DerivedData/${{ matrix.scheme }}-${{ matrix.platform }}"             CODE_SIGN_IDENTITY=""             CODE_SIGNING_REQUIRED=NO             CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.platform }}-${{ matrix.scheme }}
+          path: ./DerivedData/${{ matrix.scheme }}-${{ matrix.platform }}/Build/Products/**/*.app
