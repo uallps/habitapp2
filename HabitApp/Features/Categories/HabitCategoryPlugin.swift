@@ -4,7 +4,7 @@ import SwiftUI
 import SwiftData
 
 @MainActor
-final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
+final class HabitCategoryPlugin: DataPlugin, ViewPlugin, TabPlugin {
     private let config: AppConfig
 
     init(config: AppConfig) {
@@ -52,6 +52,17 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
                     .foregroundColor(.secondary)
             }
         }
+    }
+
+    func tabItem() -> PluginTabItem? {
+        guard isEnabled else { return nil }
+        return PluginTabItem(
+            id: "categories",
+            title: "Categorias",
+            systemImage: "tag.fill",
+            view: AnyView(CategorySummaryView()),
+            order: 30
+        )
     }
 }
 #endif

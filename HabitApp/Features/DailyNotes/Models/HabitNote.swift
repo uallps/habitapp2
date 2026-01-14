@@ -38,14 +38,35 @@ final class HabitNote: Identifiable, Codable {
 
     static func label(for mood: Int) -> String {
         switch mood {
-        case 1, 2:
-            return "Bajo"
+        case 1:
+            return "😞 Muy bajo"
+        case 2:
+            return "😕 Bajo"
         case 3:
-            return "Medio"
-        case 4, 5:
-            return "Alto"
+            return "😐 Medio"
+        case 4:
+            return "🙂 Bien"
+        case 5:
+            return "😄 Genial"
         default:
-            return "Medio"
+            return "😐 Medio"
+        }
+    }
+
+    static func emoji(for mood: Int) -> String {
+        switch mood {
+        case 1:
+            return "😞"
+        case 2:
+            return "😕"
+        case 3:
+            return "😐"
+        case 4:
+            return "🙂"
+        case 5:
+            return "😄"
+        default:
+            return "😐"
         }
     }
 

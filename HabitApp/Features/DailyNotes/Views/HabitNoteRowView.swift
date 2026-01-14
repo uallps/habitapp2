@@ -10,7 +10,7 @@ struct HabitNoteRowView: View {
     var body: some View {
         if viewModel.hasNote {
             HStack(spacing: 6) {
-                Text("Mood \(viewModel.mood) ? \(HabitNote.label(for: viewModel.mood))")
+                Text("Estado: \(HabitNote.label(for: viewModel.mood))")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                 if !viewModel.text.isEmpty {
