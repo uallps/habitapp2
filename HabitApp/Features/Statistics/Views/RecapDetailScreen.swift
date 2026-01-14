@@ -46,14 +46,14 @@ struct RecapDetailScreen: View {
         VStack(alignment: .leading, spacing: 16) {
             headerView(for: recap)
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Highlights")
-                    .font(.headline)
-                ForEach(recap.highlights.prefix(3), id: \.self) { highlight in
-                    Text(highlight)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+            GroupBox {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(recap.highlights.prefix(3), id: \.self) { highlight in
+                        HighlightRow(text: highlight)
+                    }
                 }
+            } label: {
+                Label("Highlights", systemImage: "sparkles")
             }
 
             summaryMetricsView(recap)
@@ -75,56 +75,60 @@ struct RecapDetailScreen: View {
 
     @ViewBuilder
     private func headerView(for recap: StatsRecap) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(StatsDateFormatter.rangeText(for: recap.period, interval: recap.interval, calendar: calendar))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Text(statusLabel(for: recap))
-                .font(.caption)
-                .foregroundColor(statusColor(for: recap))
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(StatsDateFormatter.rangeText(for: recap.period, interval: recap.interval, calendar: calendar))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Spacer()
+                statusPill(for: recap)
+            }
             HStack(alignment: .firstTextBaseline) {
                 Text(rateText(for: recap))
                     .font(.largeTitle)
                     .bold()
                 Spacer()
-                Text("\(recap.completedTotal)/\(recap.expectedTotal)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                completionChip(for: recap)
+            }
+            if let rate = recap.completionRate {
+                ProgressView(value: rate)
+                    .tint(statusColor(for: recap))
             }
         }
     }
 
     @ViewBuilder
     private func summaryMetricsView(_ recap: StatsRecap) -> some View {
-        GroupBox("Resumen") {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Activos")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(recap.activeHabitsCount)")
-                }
-                Spacer()
-                VStack(alignment: .leading) {
-                    Text("Con avances")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(recap.habitsWithCompletionCount)")
-                }
-                Spacer()
-                VStack(alignment: .leading) {
-                    Text("Nunca completados")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(recap.habitsNeverCompletedCount)")
-                }
+        let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
+        GroupBox {
+            LazyVGrid(columns: columns, spacing: 12) {
+                MetricCell(
+                    title: "Activos",
+                    value: "\(recap.activeHabitsCount)",
+                    systemImage: "bolt.fill",
+                    tint: .blue
+                )
+                MetricCell(
+                    title: "Con avances",
+                    value: "\(recap.habitsWithCompletionCount)",
+                    systemImage: "checkmark.seal.fill",
+                    tint: .green
+                )
+                MetricCell(
+                    title: "Nunca completados",
+                    value: "\(recap.habitsNeverCompletedCount)",
+                    systemImage: "minus.circle.fill",
+                    tint: .orange
+                )
             }
+        } label: {
+            Label("Resumen", systemImage: "chart.bar.fill")
         }
     }
 
     @ViewBuilder
     private func mainVisualView(_ recap: StatsRecap) -> some View {
-        GroupBox("Visual principal") {
+        GroupBox {
             if recap.expectedTotal == 0 {
                 Text("Sin habitos programados para este periodo")
                     .font(.caption)
@@ -178,48 +182,54 @@ struct RecapDetailScreen: View {
                     }
                 }
             }
+        } label: {
+            Label("Visual principal", systemImage: "chart.xyaxis.line")
         }
     }
 
     @ViewBuilder
     private func streaksView(_ recap: StatsRecap) -> some View {
-        GroupBox("Racha perfecta (global)") {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("Racha perfecta actual")
-                    Spacer()
-                    Text("\(recap.currentStreak) dias")
-                }
-                HStack {
-                    Text("Mejor racha perfecta")
-                    Spacer()
-                    Text("\(recap.bestStreak) dias")
-                }
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                StatRow(
+                    title: "Racha perfecta actual",
+                    value: "\(recap.currentStreak) dias",
+                    systemImage: "flame.fill",
+                    tint: .orange
+                )
+                StatRow(
+                    title: "Mejor racha perfecta",
+                    value: "\(recap.bestStreak) dias",
+                    systemImage: "star.fill",
+                    tint: .yellow
+                )
             }
-            .font(.subheadline)
+        } label: {
+            Label("Racha perfecta (global)", systemImage: "flame.fill")
         }
     }
 
     @ViewBuilder
     private func breakdownView(_ recap: StatsRecap) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Breakdown por habito")
-                .font(.headline)
+        GroupBox {
             VStack(spacing: 10) {
                 ForEach(recap.habitStats) { stat in
                     HabitBreakdownRowView(stat: stat)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
+        } label: {
+            Label("Breakdown por habito", systemImage: "list.bullet")
         }
     }
 
     @ViewBuilder
     private func annualStreaksView(_ recap: StatsRecap) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Mejores rachas del año")
-                .font(.headline)
+        GroupBox {
             if recap.annualTopStreaks.isEmpty {
-                Text("Sin rachas registradas para este año")
+                Text("Sin rachas registradas para este ano")
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
@@ -229,6 +239,8 @@ struct RecapDetailScreen: View {
                     }
                 }
             }
+        } label: {
+            Label("Mejores rachas del ano", systemImage: "crown.fill")
         }
     }
 
@@ -243,6 +255,26 @@ struct RecapDetailScreen: View {
 
     private func statusColor(for recap: StatsRecap) -> Color {
         recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? .green : .secondary
+    }
+
+    @ViewBuilder
+    private func statusPill(for recap: StatsRecap) -> some View {
+        Text(statusLabel(for: recap))
+            .font(.caption2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(statusColor(for: recap).opacity(0.15), in: Capsule())
+            .foregroundColor(statusColor(for: recap))
+    }
+
+    @ViewBuilder
+    private func completionChip(for recap: StatsRecap) -> some View {
+        Text("\(recap.completedTotal)/\(recap.expectedTotal)")
+            .font(.caption)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.secondary.opacity(0.12), in: Capsule())
+            .foregroundColor(.secondary)
     }
 
     private func dayEntries(from recap: StatsRecap, useWeekday: Bool) -> [BarEntry] {
@@ -367,6 +399,60 @@ struct RecapDetailScreen: View {
         formatter.locale = Locale.current
         formatter.dateFormat = "d MMM"
         return formatter.string(from: date)
+    }
+}
+
+private struct HighlightRow: View {
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Circle()
+                .fill(Color.accentColor)
+                .frame(width: 6, height: 6)
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+private struct MetricCell: View {
+    let title: String
+    let value: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label(title, systemImage: systemImage)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.headline)
+                .foregroundColor(.primary)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+private struct StatRow: View {
+    let title: String
+    let value: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        HStack {
+            Label(title, systemImage: systemImage)
+                .foregroundColor(tint)
+            Spacer()
+            Text(value)
+                .fontWeight(.semibold)
+        }
+        .font(.subheadline)
     }
 }
 
