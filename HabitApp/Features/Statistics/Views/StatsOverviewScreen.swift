@@ -164,35 +164,20 @@ private struct RecapCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top) {
-                HStack(spacing: 8) {
-                    Text(periodEmoji)
-                        .font(.title3)
-                        .frame(width: 28, height: 28)
-                        .background(periodColor.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
-                    Text(recap.period.title)
-                        .font(.headline)
-                }
-                Spacer()
-                Text(statusLabel)
-                    .font(.caption2)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.15), in: Capsule())
-                    .foregroundColor(statusColor)
-            }
+            Text(recap.period.title)
+                .font(.headline)
+            Text(statusLabel)
+                .font(.caption2)
+                .foregroundColor(statusColor)
             Text(StatsDateFormatter.rangeText(for: recap.period, interval: recap.interval, calendar: calendar))
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text(rateText)
-                .font(.title3.weight(.bold))
-                .foregroundColor(periodColor)
+                .font(.title3)
+                .bold()
             Text("\(recap.completedTotal)/\(recap.expectedTotal)")
                 .font(.caption)
                 .foregroundColor(.secondary)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
-                .background(Color.secondary.opacity(0.08), in: Capsule())
             progressBar
             Text(recap.primaryHighlight)
                 .font(.caption)
@@ -221,32 +206,6 @@ private struct RecapCardView: View {
 
     private var statusColor: Color {
         recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? .green : .secondary
-    }
-
-    private var periodEmoji: String {
-        switch recap.period {
-        case .daily:
-            return "☀️"
-        case .weekly:
-            return "📆"
-        case .monthly:
-            return "🗓️"
-        case .yearly:
-            return "📅"
-        }
-    }
-
-    private var periodColor: Color {
-        switch recap.period {
-        case .daily:
-            return .orange
-        case .weekly:
-            return .blue
-        case .monthly:
-            return .purple
-        case .yearly:
-            return .teal
-        }
     }
 
     private var progressValue: Double {
