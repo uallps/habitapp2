@@ -56,8 +56,6 @@ struct RecapDetailScreen: View {
                 Label("Highlights", systemImage: "sparkles")
             }
 
-            summaryMetricsView(recap)
-
             streaksView(recap)
 
             mainVisualView(recap)
@@ -94,35 +92,6 @@ struct RecapDetailScreen: View {
                 ProgressView(value: rate)
                     .tint(statusColor(for: recap))
             }
-        }
-    }
-
-    @ViewBuilder
-    private func summaryMetricsView(_ recap: StatsRecap) -> some View {
-        let columns = [GridItem(.adaptive(minimum: 120), spacing: 12)]
-        GroupBox {
-            LazyVGrid(columns: columns, spacing: 12) {
-                MetricCell(
-                    title: "Activos",
-                    value: "\(recap.activeHabitsCount)",
-                    systemImage: "bolt.fill",
-                    tint: .blue
-                )
-                MetricCell(
-                    title: "Con avances",
-                    value: "\(recap.habitsWithCompletionCount)",
-                    systemImage: "checkmark.seal.fill",
-                    tint: .green
-                )
-                MetricCell(
-                    title: "Nunca completados",
-                    value: "\(recap.habitsNeverCompletedCount)",
-                    systemImage: "minus.circle.fill",
-                    tint: .orange
-                )
-            }
-        } label: {
-            Label("Resumen", systemImage: "chart.bar.fill")
         }
     }
 
@@ -229,7 +198,7 @@ struct RecapDetailScreen: View {
     private func annualStreaksView(_ recap: StatsRecap) -> some View {
         GroupBox {
             if recap.annualTopStreaks.isEmpty {
-                Text("Sin rachas registradas para este ano")
+                Text("Sin rachas registradas para este año")
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
@@ -240,7 +209,7 @@ struct RecapDetailScreen: View {
                 }
             }
         } label: {
-            Label("Mejores rachas del ano", systemImage: "crown.fill")
+            Label("Mejores rachas del año", systemImage: "crown.fill")
         }
     }
 
@@ -414,27 +383,7 @@ private struct HighlightRow: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
-    }
-}
-
-private struct MetricCell: View {
-    let title: String
-    let value: String
-    let systemImage: String
-    let tint: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: systemImage)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(value)
-                .font(.headline)
-                .foregroundColor(.primary)
-        }
-        .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
     }
 }
 
