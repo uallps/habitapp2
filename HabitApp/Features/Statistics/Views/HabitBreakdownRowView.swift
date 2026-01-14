@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct HabitBreakdownRowView: View {
@@ -53,4 +52,3 @@ struct HabitBreakdownRowView: View {
     }
 }
 
-#endif

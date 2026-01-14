@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 @MainActor
@@ -29,4 +28,3 @@ struct CoreHabitStatsAdapter: HabitStatsDataSource {
     }
 }
 
-#endif

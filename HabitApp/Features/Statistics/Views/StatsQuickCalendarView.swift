@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct StatsQuickCalendarView: View {
@@ -210,4 +209,3 @@ private struct MonthlyCalendarPreviewView: View {
     }
 }
 
-#endif

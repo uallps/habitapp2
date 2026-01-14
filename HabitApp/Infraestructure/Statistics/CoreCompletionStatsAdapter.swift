@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 import SwiftData
 
@@ -77,4 +76,3 @@ final class CoreCompletionStatsAdapter: CompletionStatsDataSource {
     }
 }
 
-#endif

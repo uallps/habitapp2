@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 enum StatsPeriod: String, CaseIterable, Identifiable {
@@ -45,4 +44,3 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
     }
 }
 
-#endif

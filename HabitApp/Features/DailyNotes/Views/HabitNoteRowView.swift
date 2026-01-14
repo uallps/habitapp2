@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_NOTES
 ﻿import SwiftUI
 
 struct HabitNoteRowView: View {
@@ -14,4 +13,3 @@ struct HabitNoteRowView: View {
     }
 }
 
-#endif

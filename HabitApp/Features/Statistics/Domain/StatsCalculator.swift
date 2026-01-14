@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 final class StatsCalculator {
@@ -574,4 +573,3 @@ private struct StatsMetrics {
     let topHabitName: String?
 }
 
-#endif

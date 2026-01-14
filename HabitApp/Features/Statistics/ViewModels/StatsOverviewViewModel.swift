@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 import Combine
 
@@ -166,4 +165,3 @@ struct StatsOverviewContent {
     let recaps: [StatsPeriod: StatsRecap]
 }
 
-#endif

@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_CATEGORIES
 ﻿import Foundation
 import SwiftData
 
@@ -51,4 +50,3 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
     }
 }
 
-#endif

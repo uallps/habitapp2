@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct MonthlyCalendarView: View {
@@ -101,4 +100,3 @@ struct MonthlyCalendarView: View {
     }
 }
 
-#endif

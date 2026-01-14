@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct HabitStatisticsSettingsView: View {
@@ -25,4 +24,3 @@ struct HabitStatisticsSettingsView: View {
         .environmentObject(AppConfig())
 }
 
-#endif

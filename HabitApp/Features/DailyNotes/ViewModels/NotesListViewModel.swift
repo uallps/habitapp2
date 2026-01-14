@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_NOTES
 import Foundation
 import Combine
 
@@ -89,4 +88,3 @@ final class NotesListViewModel: ObservableObject {
     }
 }
 
-#endif

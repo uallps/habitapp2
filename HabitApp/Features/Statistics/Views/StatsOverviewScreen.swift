@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct StatsOverviewScreen: View {
@@ -217,4 +216,3 @@ private struct EmptyStatsView: View {
     }
 }
 
-#endif

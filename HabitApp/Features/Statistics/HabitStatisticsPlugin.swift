@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 import SwiftData
 import SwiftUI
@@ -76,4 +75,3 @@ final class HabitStatisticsPlugin: ViewPlugin, TabPlugin, DataPlugin, HabitEvent
     }
 }
 
-#endif

@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_NOTES
 import Foundation
 
 struct NoteDraft: Identifiable {
@@ -8,4 +7,3 @@ struct NoteDraft: Identifiable {
     var text: String = ""
 }
 
-#endif

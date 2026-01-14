@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 import Combine
 
@@ -33,4 +32,3 @@ final class HabitStatisticsViewModel: ObservableObject {
 }
 
 
-#endif

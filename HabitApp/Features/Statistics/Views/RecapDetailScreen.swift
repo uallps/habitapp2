@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct RecapDetailScreen: View {
@@ -371,4 +370,3 @@ struct RecapDetailScreen: View {
     }
 }
 
-#endif

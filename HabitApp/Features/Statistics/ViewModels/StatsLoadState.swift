@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 import Combine
 enum StatsLoadState<T> {
@@ -8,4 +7,3 @@ enum StatsLoadState<T> {
     case error(String)
 }
 
-#endif

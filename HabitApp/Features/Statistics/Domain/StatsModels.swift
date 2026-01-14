@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 
 struct StatsDayStat: Identifiable {
@@ -75,4 +74,3 @@ struct StatsRecap {
     let primaryHighlight: String
 }
 
-#endif

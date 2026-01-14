@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 ﻿import SwiftUI
 
 struct StatisticsDashboardView: View {
@@ -27,4 +26,3 @@ struct StatisticsDashboardView: View {
     StatisticsDashboardView(storageProvider: MockStorageProvider())
 }
 
-#endif

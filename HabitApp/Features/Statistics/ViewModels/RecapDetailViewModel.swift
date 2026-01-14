@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import Foundation
 import Combine
 @MainActor
@@ -75,4 +74,3 @@ struct StatsDayDetail {
     let habits: [StatsHabitDayStatus]
 }
 
-#endif

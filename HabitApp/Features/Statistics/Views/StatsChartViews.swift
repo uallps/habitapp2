@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_STATS
 import SwiftUI
 
 struct BarEntry: Identifiable {
@@ -53,4 +52,3 @@ struct BarChartView: View {
     }
 }
 
-#endif

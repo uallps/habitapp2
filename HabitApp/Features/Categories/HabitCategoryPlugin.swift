@@ -1,4 +1,3 @@
-#if PREMIUM || PLUGIN_CATEGORIES
 import Foundation
 import SwiftUI
 import SwiftData
@@ -55,4 +54,3 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
     }
 }
 
-#endif
