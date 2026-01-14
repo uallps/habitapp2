@@ -178,10 +178,12 @@ private struct RecapCardView: View {
             Text("\(recap.completedTotal)/\(recap.expectedTotal)")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            progressBar
             Text(recap.primaryHighlight)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
+                .frame(minHeight: 32, alignment: .topLeading)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -204,6 +206,42 @@ private struct RecapCardView: View {
 
     private var statusColor: Color {
         recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? .green : .secondary
+    }
+
+    private var progressValue: Double {
+        min(max(recap.completionRate ?? 0, 0), 1)
+    }
+
+    private var progressColor: Color {
+        guard let rate = recap.completionRate else { return .secondary }
+        if rate >= 1 {
+            return .green
+        }
+        if rate >= 0.8 {
+            return .mint
+        }
+        if rate >= 0.5 {
+            return .orange
+        }
+        if rate > 0 {
+            return .red
+        }
+        return .secondary
+    }
+
+    private var progressBar: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(progressColor.opacity(0.18))
+                    .frame(height: 6)
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(progressColor)
+                    .frame(width: geometry.size.width * progressValue, height: 6)
+            }
+        }
+        .frame(height: 6)
+        .accessibilityLabel("Progreso \(Int(progressValue * 100)) por ciento")
     }
 
     private var backgroundStyle: some View {

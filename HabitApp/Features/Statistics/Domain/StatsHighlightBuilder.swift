@@ -133,7 +133,7 @@ struct StatsHighlightBuilder {
         }
         switch period {
         case .daily:
-            return "En curso: buen ritmo hoy"
+            return "En curso: ritmo estable hoy"
         case .weekly:
             return "En curso: buen ritmo esta semana"
         case .monthly:
