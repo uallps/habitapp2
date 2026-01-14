@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct HabitNoteRowView: View {
-    @ObservedObject var viewModel: HabitNoteViewModel
+    @StateObject private var viewModel: HabitNoteViewModel
+
+    init(habit: Habit, storage: HabitNoteStorage? = nil) {
+        _viewModel = StateObject(wrappedValue: HabitNoteViewModel(habit: habit, storage: storage))
+    }
 
     var body: some View {
         if viewModel.hasNote {

@@ -24,7 +24,7 @@ final class HabitNotePlugin: DataPlugin, ViewPlugin {
     @ViewBuilder
     func habitRowView(for habit: Habit) -> some View {
         if isEnabled {
-            HabitNoteRowView(viewModel: HabitNoteViewModel(habit: habit))
+            HabitNoteRowView(habit: habit)
         }
     }
 
@@ -53,4 +53,3 @@ final class HabitNotePlugin: DataPlugin, ViewPlugin {
         }
     }
 }
-
