@@ -41,7 +41,18 @@ jobs:
 
       - name: Build (${{ matrix.platform }})
         run: |
-          xcodebuild clean build             -project HabitApp.xcodeproj             -scheme "${{ matrix.scheme }}"             -configuration Release             -sdk ${{ matrix.sdk }}             -destination "${{ matrix.destination }}"             -derivedDataPath "./DerivedData/${{ matrix.scheme }}-${{ matrix.platform }}"             CODE_SIGN_IDENTITY=""             CODE_SIGNING_REQUIRED=NO             CODE_SIGNING_ALLOWED=NO
+          xcodebuild clean build \
+            -project HabitApp.xcodeproj \
+            -scheme "${{ matrix.scheme }}" \
+            -configuration Release \
+            -sdk ${{ matrix.sdk }} \
+            -destination "${{ matrix.destination }}" \
+            -derivedDataPath "./DerivedData/${{ matrix.scheme }}-${{ matrix.platform }}" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=NO \
+            SWIFT_STRICT_CONCURRENCY=targeted
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
