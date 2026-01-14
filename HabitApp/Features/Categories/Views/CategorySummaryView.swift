@@ -13,7 +13,6 @@ import AppKit
 /// Incluye animaciones de entrada, estados de carga y accesibilidad completa.
 struct CategorySummaryView: View {
     @StateObject private var viewModel = CategorySummaryViewModel()
-    @Environment(\.dismiss) private var dismiss
     @State private var hasAppeared = false
 
     private let columns = [
@@ -54,16 +53,11 @@ struct CategorySummaryView: View {
                 .padding(.vertical)
             }
             .background(Color.adaptiveSystemGroupedBackground)
-            .navigationTitle("Resumen")
+            .navigationTitle("Categorias")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
             #endif
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cerrar") {
-                        dismiss()
-                    }
-                }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         Task { await viewModel.load() }

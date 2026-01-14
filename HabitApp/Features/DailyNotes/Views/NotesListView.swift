@@ -77,7 +77,7 @@ struct NotesListView: View {
                 Text(note.date, style: .date)
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Text("Mood \(note.mood) ? \(note.moodLabel)")
+                Text("Estado: \(note.moodLabel)")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

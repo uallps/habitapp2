@@ -11,17 +11,37 @@ import SwiftData
 
 @MainActor
 final class AppConfig: ObservableObject {
+#if PREMIUM
+    @AppStorage("enableDailyNotes")
+    var enableDailyNotes: Bool = true
+#else
     @AppStorage("enableDailyNotes")
     var enableDailyNotes: Bool = false
+#endif
 
+#if PREMIUM
     @AppStorage("enableCategories")
     var enableCategories: Bool = true
+#else
+    @AppStorage("enableCategories")
+    var enableCategories: Bool = true
+#endif
 
+#if PREMIUM
     @AppStorage("enableStatistics")
     var enableStatistics: Bool = true
+#else
+    @AppStorage("enableStatistics")
+    var enableStatistics: Bool = true
+#endif
 
+#if PREMIUM
+    @AppStorage("isPremium")
+    var isPremium: Bool = true
+#else
     @AppStorage("isPremium")
     var isPremium: Bool = false
+#endif
 
     private var plugins: [FeaturePlugin] = []
 

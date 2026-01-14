@@ -34,9 +34,9 @@ struct NoteEditorView: View {
             DatePicker("Fecha", selection: $draft.date, displayedComponents: .date)
 
             Section("Estado de animo") {
-                Picker("Mood", selection: $draft.mood) {
+                Picker("Estado", selection: $draft.mood) {
                     ForEach(1...5, id: \.self) { value in
-                        Text("\(value)").tag(value)
+                        Text(HabitNote.emoji(for: value)).tag(value)
                     }
                 }
                 .pickerStyle(.segmented)

@@ -74,7 +74,7 @@ struct HabitNotesSectionView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text("Mood \(note.mood) ? \(note.moodLabel)")
+                    Text("Estado: \(note.moodLabel)")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }

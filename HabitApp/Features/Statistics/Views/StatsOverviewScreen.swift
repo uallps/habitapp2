@@ -49,13 +49,13 @@ struct StatsOverviewScreen: View {
     @ViewBuilder
     private func loadedContent(_ payload: StatsOverviewContent) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            GroupBox("Fecha de referencia") {
+            GroupBox("📅 Fecha de referencia") {
                 DatePicker("Fecha", selection: $viewModel.referenceDate, in: ...Date(), displayedComponents: .date)
                     .datePickerStyle(.compact)
             }
 
             if let summaryRecap = payload.recaps[viewModel.summaryPeriod] {
-                GroupBox("Resumen") {
+                GroupBox("✨ Resumen") {
                     VStack(alignment: .leading, spacing: 12) {
                         Picker("Periodo", selection: $viewModel.summaryPeriod) {
                             ForEach(StatsPeriod.allCases) { period in
@@ -70,7 +70,7 @@ struct StatsOverviewScreen: View {
             }
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("Recaps")
+                Text("📊 Recaps")
                     .font(.headline)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(StatsPeriod.allCases) { period in
@@ -90,7 +90,7 @@ struct StatsOverviewScreen: View {
                 }
             }
 
-            GroupBox("Vista rapida") {
+            GroupBox("⚡ Vista rapida") {
                 VStack(alignment: .leading, spacing: 12) {
                     if !viewModel.habits.isEmpty {
                         StatsHabitFilterView(
@@ -127,23 +127,29 @@ private struct StatsSummaryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Completados")
-                Spacer()
-                Text("\(recap.completedTotal)/\(recap.expectedTotal)")
-            }
-            HStack {
-                Text("Cumplimiento")
-                Spacer()
-                Text(rateText)
-            }
-            HStack {
-                Text("Racha perfecta (global)")
-                Spacer()
-                Text("\(recap.currentStreak) dias")
-            }
+            StatMetricRow(
+                title: "Completados",
+                value: "\(recap.completedTotal)/\(recap.expectedTotal)",
+                systemImage: "checkmark.seal.fill",
+                tint: .green
+            )
+            StatMetricRow(
+                title: "Cumplimiento",
+                value: rateText,
+                systemImage: "chart.pie.fill",
+                tint: .blue
+            )
+            StatMetricRow(
+                title: "Racha perfecta",
+                value: "\(recap.currentStreak) dias",
+                systemImage: "flame.fill",
+                tint: .orange
+            )
         }
         .font(.subheadline)
+        .padding(12)
+        .background(Color.secondary.opacity(0.08))
+        .cornerRadius(12)
     }
 
     private var rateText: String {
@@ -172,14 +178,20 @@ private struct RecapCardView: View {
             Text("\(recap.completedTotal)/\(recap.expectedTotal)")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            progressBar
             Text(recap.primaryHighlight)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .lineLimit(2)
+                .frame(minHeight: 32, alignment: .topLeading)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.secondary.opacity(0.08))
+        .background(backgroundStyle)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(statusColor.opacity(0.2), lineWidth: 1)
+        )
         .cornerRadius(12)
     }
 
@@ -189,11 +201,56 @@ private struct RecapCardView: View {
     }
 
     private var statusLabel: String {
-        recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? "En curso" : "Finalizado"
+        recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? "🔥 En curso" : "✅ Finalizado"
     }
 
     private var statusColor: Color {
         recap.period.isCurrent(interval: recap.interval, calendar: calendar, relativeTo: Date()) ? .green : .secondary
+    }
+
+    private var progressValue: Double {
+        min(max(recap.completionRate ?? 0, 0), 1)
+    }
+
+    private var progressColor: Color {
+        guard let rate = recap.completionRate else { return .secondary }
+        if rate >= 1 {
+            return .green
+        }
+        if rate >= 0.8 {
+            return .mint
+        }
+        if rate >= 0.5 {
+            return .orange
+        }
+        if rate > 0 {
+            return .red
+        }
+        return .secondary
+    }
+
+    private var progressBar: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(progressColor.opacity(0.18))
+                    .frame(height: 6)
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(progressColor)
+                    .frame(width: geometry.size.width * progressValue, height: 6)
+            }
+        }
+        .frame(height: 6)
+        .accessibilityLabel("Progreso \(Int(progressValue * 100)) por ciento")
+    }
+
+    private var backgroundStyle: some View {
+        let colors = [
+            statusColor.opacity(0.18),
+            statusColor.opacity(0.05)
+        ]
+        return RoundedRectangle(cornerRadius: 12)
+            .fill(LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing))
     }
 }
 
@@ -202,9 +259,9 @@ private struct EmptyStatsView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(message)
+            Text("📭 \(message)")
                 .font(.headline)
-            Text("Crear habito")
+            Text("✨ Crear habito")
                 .font(.headline)
                 .foregroundColor(.accentColor)
             Text("Usa la pestana Habitos para agregar el primero.")
@@ -213,6 +270,24 @@ private struct EmptyStatsView: View {
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 24)
+    }
+}
+
+private struct StatMetricRow: View {
+    let title: String
+    let value: String
+    let systemImage: String
+    let tint: Color
+
+    var body: some View {
+        HStack {
+            Label(title, systemImage: systemImage)
+                .foregroundColor(tint)
+            Spacer()
+            Text(value)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+        }
     }
 }
 

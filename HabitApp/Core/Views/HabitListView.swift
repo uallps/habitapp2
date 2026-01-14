@@ -12,7 +12,6 @@ struct HabitListView: View {
     @State private var filteredHabitIds: Set<UUID>?
     @State private var categoryCounts: [HabitCategory: Int] = [:]
     @State private var categoryProgress: [HabitCategory: CategoryProgress] = [:]
-    @State private var showCategorySummary: Bool = false
 #endif
 
     init(storageProvider: StorageProvider) {
@@ -119,17 +118,6 @@ struct HabitListView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     EditButton()
                 }
-#if PREMIUM || PLUGIN_CATEGORIES
-                ToolbarItem(placement: .secondaryAction) {
-                    if appConfig.isCategoriesEnabled {
-                        Button {
-                            showCategorySummary = true
-                        } label: {
-                            Label("Resumen", systemImage: "chart.pie.fill")
-                        }
-                    }
-                }
-#endif
                 ToolbarItem(placement: .primaryAction) {
                     addHabitButton()
                 }
@@ -139,11 +127,6 @@ struct HabitListView: View {
                 }
 #endif
             }
-#if PREMIUM || PLUGIN_CATEGORIES
-            .sheet(isPresented: $showCategorySummary) {
-                CategorySummaryView()
-            }
-#endif
             .task {
                 await viewModel.loadHabits()
 #if PREMIUM || PLUGIN_CATEGORIES
