@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct NotesListView: View {
     @StateObject private var viewModel: NotesListViewModel
@@ -64,9 +64,14 @@ struct NotesListView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.title(for: note.habitId))
                 .font(.headline)
-            Text(note.date, style: .date)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            HStack(spacing: 8) {
+                Text(note.date, style: .date)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("Mood \(note.mood) ? \(note.moodLabel)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
             Text(note.text.isEmpty ? "(Sin contenido)" : note.text)
                 .font(.body)
                 .lineLimit(2)
@@ -82,4 +87,3 @@ struct NotesListView: View {
 #Preview {
     NotesListView(storageProvider: MockStorageProvider())
 }
-

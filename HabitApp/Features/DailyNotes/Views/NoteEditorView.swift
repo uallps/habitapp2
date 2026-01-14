@@ -24,6 +24,19 @@ struct NoteEditorView: View {
 
                 DatePicker("Fecha", selection: $draft.date, displayedComponents: .date)
 
+                Section("Estado de animo") {
+                    Picker("Mood", selection: $draft.mood) {
+                        ForEach(1...5, id: \.self) { value in
+                            Text("\(value)").tag(value)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    Text("Estado: \(HabitNote.label(for: draft.mood))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
                 Section("Contenido") {
                     TextEditor(text: $draft.text)
                         .frame(minHeight: 160)
@@ -42,4 +55,3 @@ struct NoteEditorView: View {
         }
     }
 }
-

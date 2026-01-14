@@ -69,9 +69,15 @@ struct HabitNotesSectionView: View {
             isPresentingEditor = true
         } label: {
             VStack(alignment: .leading, spacing: 6) {
-                Text(note.date, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(note.date, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("Mood \(note.mood) ? \(note.moodLabel)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 Text(note.text.isEmpty ? "(Sin contenido)" : note.text)
                     .font(.body)
                     .foregroundColor(.primary)
@@ -85,4 +91,3 @@ struct HabitNotesSectionView: View {
         .buttonStyle(.plain)
     }
 }
-

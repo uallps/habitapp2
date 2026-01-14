@@ -25,22 +25,23 @@ final class HabitNotesSectionViewModel: ObservableObject {
 
     func draftForNewNote() -> NoteDraft {
         editingNote = nil
-        return NoteDraft(habitId: habit.id, date: Date(), text: "")
+        return NoteDraft(habitId: habit.id, date: Date(), text: "", mood: 3)
     }
 
     func draft(for note: HabitNote) -> NoteDraft {
         editingNote = note
-        return NoteDraft(id: note.id, habitId: note.habitId, date: note.date, text: note.text)
+        return NoteDraft(id: note.id, habitId: note.habitId, date: note.date, text: note.text, mood: note.mood)
     }
 
     func save(draft: NoteDraft) async {
         do {
             if let existing = editingNote {
                 existing.text = draft.text
+                existing.mood = draft.mood
                 existing.update(date: draft.date)
                 try await noteStorage.save(existing)
             } else {
-                let note = HabitNote(habitId: habit.id, date: draft.date, text: draft.text)
+                let note = HabitNote(habitId: habit.id, date: draft.date, text: draft.text, mood: draft.mood)
                 try await noteStorage.save(note)
             }
             editingNote = nil
@@ -63,4 +64,3 @@ final class HabitNotesSectionViewModel: ObservableObject {
         }
     }
 }
-

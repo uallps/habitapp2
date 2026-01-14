@@ -5,6 +5,8 @@ import Combine
 final class HabitNoteViewModel: ObservableObject {
     @Published var text: String = ""
     @Published var selectedDate: Date = Date()
+    @Published var mood: Int = 3
+    @Published var hasNote = false
 
     private var note: HabitNote?
     private let habit: Habit
@@ -20,6 +22,8 @@ final class HabitNoteViewModel: ObservableObject {
         do {
             note = try await storage.note(for: habit.id, on: selectedDate)
             text = note?.text ?? ""
+            mood = note?.mood ?? 3
+            hasNote = note != nil
         } catch {
             print("Notes load error: \(error)")
         }
@@ -45,4 +49,3 @@ final class HabitNoteViewModel: ObservableObject {
         }
     }
 }
-
