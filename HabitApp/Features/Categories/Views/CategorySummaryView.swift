@@ -55,7 +55,9 @@ struct CategorySummaryView: View {
             }
             .background(Color.adaptiveSystemGroupedBackground)
             .navigationTitle("Resumen")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cerrar") {
