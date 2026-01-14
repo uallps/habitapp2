@@ -8,55 +8,64 @@ struct NotesListView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(viewModel.notes) { note in
-                    Button {
-                        viewModel.edit(note: note)
-                    } label: {
-                        noteRow(note)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            delete(note: note)
-                        } label: {
-                            Label("Eliminar", systemImage: "trash")
-                        }
-                    }
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            delete(note: note)
-                        } label: {
-                            Label("Eliminar", systemImage: "trash")
-                        }
-                    }
-                }
-                .onDelete { indexSet in
-                    Task { await viewModel.deleteNotes(at: indexSet) }
-                }
-            }
 #if os(iOS)
-            .listStyle(.insetGrouped)
+        NavigationStack {
+            content
+        }
 #else
-            .listStyle(.inset)
+        content
 #endif
-            .navigationTitle("Notas")
-            .toolbar {
-                Button(action: viewModel.presentNewNote) {
-                    Label("Nueva nota", systemImage: "plus")
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        List {
+            ForEach(viewModel.notes) { note in
+                Button {
+                    viewModel.edit(note: note)
+                } label: {
+                    noteRow(note)
                 }
-                .disabled(viewModel.habits.isEmpty)
+                .swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        delete(note: note)
+                    } label: {
+                        Label("Eliminar", systemImage: "trash")
+                    }
+                }
+                .contextMenu {
+                    Button(role: .destructive) {
+                        delete(note: note)
+                    } label: {
+                        Label("Eliminar", systemImage: "trash")
+                    }
+                }
             }
-            .task { await viewModel.load() }
-            .sheet(isPresented: $viewModel.isPresentingEditor) {
-                NoteEditorView(
-                    draft: $viewModel.draft,
-                    habits: viewModel.habits,
-                    allowsHabitSelection: true,
-                    onCancel: { viewModel.isPresentingEditor = false },
-                    onSave: { Task { await viewModel.saveDraft() } }
-                )
+            .onDelete { indexSet in
+                Task { await viewModel.deleteNotes(at: indexSet) }
             }
+        }
+#if os(iOS)
+        .listStyle(.insetGrouped)
+#else
+        .listStyle(.inset)
+#endif
+        .navigationTitle("Notas")
+        .toolbar {
+            Button(action: viewModel.presentNewNote) {
+                Label("Nueva nota", systemImage: "plus")
+            }
+            .disabled(viewModel.habits.isEmpty)
+        }
+        .task { await viewModel.load() }
+        .sheet(isPresented: $viewModel.isPresentingEditor) {
+            NoteEditorView(
+                draft: $viewModel.draft,
+                habits: viewModel.habits,
+                allowsHabitSelection: true,
+                onCancel: { viewModel.isPresentingEditor = false },
+                onSave: { Task { await viewModel.saveDraft() } }
+            )
         }
     }
 
