@@ -12,10 +12,71 @@ struct CategoryProgress {
     }
 }
 
-/// Barra de filtrado horizontal por categorias.
+/// Barra de filtrado horizontal por categorias (nuevo modelo).
 /// Muestra chips seleccionables para filtrar habitos por categoria.
 /// Opcionalmente muestra el conteo de hábitos y progreso por categoría.
 struct CategoryFilterBar: View {
+    @Binding var selectedCategoryId: UUID?
+
+    /// Categorías disponibles
+    var categories: [Category]
+
+    /// Conteo de hábitos por categoría (opcional)
+    var categoryCounts: [UUID: Int] = [:]
+
+    /// Progreso por categoría (opcional)
+    var categoryProgress: [UUID: CategoryProgress] = [:]
+
+    /// Total de hábitos para el chip "Todos"
+    var totalCount: Int? {
+        categoryCounts.isEmpty ? nil : categoryCounts.values.reduce(0, +)
+    }
+
+    /// Progreso global calculado
+    var totalProgress: CategoryProgress? {
+        guard !categoryProgress.isEmpty else { return nil }
+        let completed = categoryProgress.values.reduce(0) { $0 + $1.completed }
+        let total = categoryProgress.values.reduce(0) { $0 + $1.total }
+        return CategoryProgress(completed: completed, total: total)
+    }
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // Boton "Todos"
+                FilterChip(
+                    title: "Todos",
+                    icon: "list.bullet",
+                    color: .accentColor,
+                    count: totalCount,
+                    progress: totalProgress,
+                    isSelected: selectedCategoryId == nil
+                ) {
+                    selectedCategoryId = nil
+                }
+
+                // Chips por categoria
+                ForEach(categories) { category in
+                    FilterChip(
+                        title: category.name,
+                        icon: category.emoji,
+                        color: category.color,
+                        count: categoryCounts[category.id],
+                        progress: categoryProgress[category.id],
+                        isSelected: selectedCategoryId == category.id
+                    ) {
+                        selectedCategoryId = category.id
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+    }
+}
+
+/// Barra de filtrado usando HabitCategory legacy (para compatibilidad)
+struct LegacyCategoryFilterBar: View {
     @Binding var selectedCategory: HabitCategory?
 
     /// Conteo de hábitos por categoría (opcional)
@@ -149,13 +210,13 @@ private struct FilterChip: View {
     }
 }
 
-#Preview {
+#Preview("Legacy Filter Bar") {
     VStack(spacing: 16) {
         Text("Sin contadores").font(.caption).foregroundColor(.secondary)
-        CategoryFilterBar(selectedCategory: .constant(nil))
+        LegacyCategoryFilterBar(selectedCategory: .constant(nil))
 
         Text("Con contadores").font(.caption).foregroundColor(.secondary)
-        CategoryFilterBar(
+        LegacyCategoryFilterBar(
             selectedCategory: .constant(nil),
             categoryCounts: [
                 .wellness: 3,
@@ -167,27 +228,8 @@ private struct FilterChip: View {
         )
 
         Text("Con progreso").font(.caption).foregroundColor(.secondary)
-        CategoryFilterBar(
+        LegacyCategoryFilterBar(
             selectedCategory: .constant(nil),
-            categoryCounts: [
-                .wellness: 3,
-                .health: 5,
-                .learning: 2,
-                .productivity: 4,
-                .other: 1
-            ],
-            categoryProgress: [
-                .wellness: CategoryProgress(completed: 2, total: 3),
-                .health: CategoryProgress(completed: 3, total: 5),
-                .learning: CategoryProgress(completed: 2, total: 2),
-                .productivity: CategoryProgress(completed: 1, total: 4),
-                .other: CategoryProgress(completed: 0, total: 1)
-            ]
-        )
-
-        Text("Selección con progreso").font(.caption).foregroundColor(.secondary)
-        CategoryFilterBar(
-            selectedCategory: .constant(.health),
             categoryCounts: [
                 .wellness: 3,
                 .health: 5,

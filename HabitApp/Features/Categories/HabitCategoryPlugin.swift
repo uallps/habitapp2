@@ -11,7 +11,8 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
         self.config = config
     }
 
-    var models: [any PersistentModel.Type] { [HabitCategoryAssignment.self] }
+    /// Registra ambos modelos: Category y HabitCategoryAssignment
+    var models: [any PersistentModel.Type] { [Category.self, HabitCategoryAssignment.self] }
     var isEnabled: Bool { config.isCategoriesEnabled }
 
     func willDeleteHabit(_ habit: Habit) async {
@@ -40,17 +41,44 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
     @MainActor
     @ViewBuilder
     func settingsView() -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        CategorySettingsSection(config: config)
+    }
+}
+
+/// Sección de configuración de categorías con acceso a gestión
+private struct CategorySettingsSection: View {
+    @ObservedObject var config: AppConfig
+    @State private var showCategoryManagement = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
             Toggle("Categorías", isOn: Binding(
-                get: { self.config.enableCategories },
-                set: { self.config.enableCategories = $0 }
+                get: { config.enableCategories },
+                set: { config.enableCategories = $0 }
             ))
             .disabled(!config.isPremium)
+
             if !config.isPremium {
                 Text("Disponible solo en Premium")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+
+            if config.isCategoriesEnabled {
+                Button {
+                    showCategoryManagement = true
+                } label: {
+                    HStack {
+                        Image(systemName: "folder.badge.gearshape")
+                        Text("Gestionar Categorías")
+                    }
+                    .font(.subheadline)
+                }
+                .padding(.top, 4)
+            }
+        }
+        .sheet(isPresented: $showCategoryManagement) {
+            CategoryManagementView()
         }
     }
 }

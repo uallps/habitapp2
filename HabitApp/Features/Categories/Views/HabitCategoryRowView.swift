@@ -23,7 +23,7 @@ struct HabitCategoryRowView: View {
                 EmptyView()
             }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.currentCategory)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.currentCategory?.id)
     }
 }
 
@@ -52,9 +52,34 @@ private struct CategoryBadgePlaceholder: View {
     }
 }
 
-/// Badge visual con el icono y nombre de la categoría.
+/// Badge visual con el icono y nombre de la categoría (nuevo modelo).
 /// Incluye animaciones sutiles y soporte completo para accesibilidad.
 struct CategoryBadge: View {
+    let category: Category
+
+    /// Tamaño del badge (compacto o normal)
+    var isCompact: Bool = false
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: category.emoji)
+                .imageScale(isCompact ? .small : .medium)
+            Text(category.name)
+        }
+        .font(isCompact ? .caption2 : .caption)
+        .fontWeight(.medium)
+        .padding(.horizontal, isCompact ? 6 : 8)
+        .padding(.vertical, isCompact ? 3 : 4)
+        .background(category.color.opacity(0.15))
+        .foregroundColor(category.color)
+        .clipShape(Capsule())
+        .accessibilityLabel(category.accessibilityLabel)
+        .accessibilityAddTraits(.isStaticText)
+    }
+}
+
+/// Badge visual usando HabitCategory legacy (para compatibilidad)
+struct LegacyCategoryBadge: View {
     let category: HabitCategory
 
     /// Tamaño del badge (compacto o normal)
@@ -78,31 +103,20 @@ struct CategoryBadge: View {
     }
 }
 
-#Preview("Todos los badges") {
+#Preview("Badges") {
     VStack(spacing: 16) {
-        Text("Badges normales")
+        Text("Badge legacy")
             .font(.headline)
 
         ForEach(HabitCategory.allCases) { category in
             HStack {
-                CategoryBadge(category: category)
+                LegacyCategoryBadge(category: category)
                 Spacer()
                 Text(category.description)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             .padding(.horizontal)
-        }
-
-        Divider()
-
-        Text("Badges compactos")
-            .font(.headline)
-
-        HStack(spacing: 8) {
-            ForEach(HabitCategory.allCases) { category in
-                CategoryBadge(category: category, isCompact: true)
-            }
         }
     }
     .padding()

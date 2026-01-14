@@ -187,7 +187,7 @@ private struct CategoryStatCard: View {
                         .fill(stat.category.color.opacity(0.15))
                         .frame(width: 36, height: 36)
 
-                    Image(systemName: stat.category.icon)
+                    Image(systemName: stat.category.emoji)
                         .font(.title3)
                         .foregroundColor(stat.category.color)
                 }
@@ -202,11 +202,11 @@ private struct CategoryStatCard: View {
 
             // Nombre y descripción
             VStack(alignment: .leading, spacing: 2) {
-                Text(stat.category.rawValue)
+                Text(stat.category.name)
                     .font(.headline)
                     .lineLimit(1)
 
-                Text(stat.category.description)
+                Text(stat.category.categoryDescription)
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -253,7 +253,7 @@ private struct CategoryStatCard: View {
         .scaleEffect(isPressed ? 0.97 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(stat.category.rawValue): \(stat.habitCount) hábitos, \(stat.completedToday) de \(stat.scheduledToday) completados hoy")
+        .accessibilityLabel("\(stat.category.name): \(stat.habitCount) hábitos, \(stat.completedToday) de \(stat.scheduledToday) completados hoy")
     }
 }
 
@@ -294,10 +294,10 @@ struct CircularProgressView: View {
     }
 }
 
-/// Modelo de estadísticas por categoría
+/// Modelo de estadísticas por categoría (nuevo modelo)
 struct CategoryStat: Identifiable {
-    let id = UUID()
-    let category: HabitCategory
+    let id: UUID
+    let category: Category
     var habitCount: Int
     var completedToday: Int
     var scheduledToday: Int
@@ -305,6 +305,14 @@ struct CategoryStat: Identifiable {
     var todayProgress: Double {
         guard scheduledToday > 0 else { return 0 }
         return Double(completedToday) / Double(scheduledToday)
+    }
+
+    init(category: Category, habitCount: Int = 0, completedToday: Int = 0, scheduledToday: Int = 0) {
+        self.id = category.id
+        self.category = category
+        self.habitCount = habitCount
+        self.completedToday = completedToday
+        self.scheduledToday = scheduledToday
     }
 }
 
@@ -315,11 +323,19 @@ final class CategorySummaryViewModel: ObservableObject {
     @Published var totalHabits: Int = 0
     @Published var overallProgress: Double = 0
 
-    private let storage = HabitCategorySwiftDataStorage()
+    private let assignmentStorage = HabitCategorySwiftDataStorage()
+    private let categoryStorage = CategorySwiftDataStorage()
 
     func load() async {
         do {
-            let assignments = try await storage.allAssignments()
+            // Inicializar categorías por defecto si es necesario
+            try await categoryStorage.initializeDefaultCategoriesIfNeeded()
+
+            // Cargar todas las categorías
+            let categories = try await categoryStorage.allCategories()
+
+            // Cargar todas las asignaciones
+            let assignments = try await assignmentStorage.allAssignments()
 
             // Acceder al contexto compartido para obtener hábitos
             guard let context = SwiftDataContext.shared else { return }
@@ -329,14 +345,10 @@ final class CategorySummaryViewModel: ObservableObject {
 
             totalHabits = habits.count
 
-            var stats: [HabitCategory: CategoryStat] = [:]
-            for category in HabitCategory.allCases {
-                stats[category] = CategoryStat(
-                    category: category,
-                    habitCount: 0,
-                    completedToday: 0,
-                    scheduledToday: 0
-                )
+            // Crear estadísticas para cada categoría
+            var stats: [UUID: CategoryStat] = [:]
+            for category in categories {
+                stats[category.id] = CategoryStat(category: category)
             }
 
             let today = Date()
@@ -344,25 +356,27 @@ final class CategorySummaryViewModel: ObservableObject {
             var totalCompleted = 0
 
             for assignment in assignments {
-                guard let habit = habitMap[assignment.habitId] else { continue }
+                guard let habit = habitMap[assignment.habitId],
+                      let categoryId = assignment.categoryId,
+                      stats[categoryId] != nil else { continue }
 
-                let category = assignment.categoryValue
-                stats[category]?.habitCount += 1
+                stats[categoryId]?.habitCount += 1
 
                 // Verificar si está programado para hoy
                 if habit.isScheduled(on: today) {
-                    stats[category]?.scheduledToday += 1
+                    stats[categoryId]?.scheduledToday += 1
                     totalScheduled += 1
 
                     // Verificar si está completado hoy usando lastCompletionDate
                     if isCompletedToday(habit: habit, today: today) {
-                        stats[category]?.completedToday += 1
+                        stats[categoryId]?.completedToday += 1
                         totalCompleted += 1
                     }
                 }
             }
 
-            categoryStats = HabitCategory.allCases.compactMap { stats[$0] }
+            // Ordenar por sortOrder de la categoría
+            categoryStats = categories.compactMap { stats[$0.id] }
             overallProgress = totalScheduled > 0 ? Double(totalCompleted) / Double(totalScheduled) : 0
         } catch {
             print("Error loading category summary: \(error)")

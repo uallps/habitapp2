@@ -6,43 +6,63 @@ import SwiftUI
 /// Modelo que representa la asignación de una categoría a un hábito.
 /// Cada hábito puede tener una única categoría asignada.
 /// Se persiste usando SwiftData y se relaciona con Habit mediante habitId.
+/// Ahora usa categoryId para referenciar categorías personalizables.
 @Model
 final class HabitCategoryAssignment: Identifiable, Codable {
-    private enum CodingKeys: CodingKey { case id, habitId, category }
+    private enum CodingKeys: CodingKey { case id, habitId, categoryId, legacyCategory }
 
     private(set) var id: UUID
     var habitId: UUID
-    var category: String
+    /// ID de la categoría personalizada asignada
+    var categoryId: UUID?
+    /// Campo legacy para migración de datos antiguos (nombre de categoría del enum)
+    var legacyCategory: String?
 
-    var categoryValue: HabitCategory {
-        get { HabitCategory.from(rawValue: category) }
-        set { category = newValue.rawValue }
-    }
-
-    init(habitId: UUID, category: HabitCategory = .wellness) {
+    init(habitId: UUID, categoryId: UUID) {
         self.id = UUID()
         self.habitId = habitId
-        self.category = category.rawValue
+        self.categoryId = categoryId
+        self.legacyCategory = nil
+    }
+
+    /// Inicializador para compatibilidad con datos legacy
+    init(habitId: UUID, legacyCategory: HabitCategory) {
+        self.id = UUID()
+        self.habitId = habitId
+        self.categoryId = nil
+        self.legacyCategory = legacyCategory.rawValue
     }
 
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         habitId = try container.decode(UUID.self, forKey: .habitId)
-        category = try container.decode(String.self, forKey: .category)
+        categoryId = try container.decodeIfPresent(UUID.self, forKey: .categoryId)
+        legacyCategory = try container.decodeIfPresent(String.self, forKey: .legacyCategory)
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(habitId, forKey: .habitId)
-        try container.encode(category, forKey: .category)
+        try container.encodeIfPresent(categoryId, forKey: .categoryId)
+        try container.encodeIfPresent(legacyCategory, forKey: .legacyCategory)
+    }
+
+    /// Indica si esta asignación usa el formato legacy (enum) o el nuevo formato (categoryId)
+    var isLegacy: Bool {
+        categoryId == nil && legacyCategory != nil
+    }
+
+    /// Obtiene la categoría legacy si existe (para migración)
+    var legacyCategoryValue: HabitCategory? {
+        guard let legacy = legacyCategory else { return nil }
+        return HabitCategory.from(rawValue: legacy)
     }
 }
 
-/// Categorías predefinidas para clasificar hábitos.
-/// Cada categoría tiene un nombre localizado, un icono SF Symbol, un color distintivo
-/// y una descripción que ayuda al usuario a entender qué tipo de hábitos incluir.
+/// Categorías predefinidas para clasificar hábitos (legacy - mantenido para compatibilidad).
+/// Las nuevas categorías usan el modelo Category persistente.
 enum HabitCategory: String, CaseIterable, Identifiable, Codable {
     /// Hábitos de autocuidado y bienestar personal
     case wellness = "Bienestar"

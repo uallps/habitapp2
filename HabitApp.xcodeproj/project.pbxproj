@@ -740,6 +740,11 @@
 				XROS_DEPLOYMENT_TARGET = 26.0;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) BASIC";
 				EXCLUDED_SOURCE_FILE_NAMES = (
+					"Category.swift",
+					"CategoryFormView.swift",
+					"CategoryManagementView.swift",
+					"CategoryStorage.swift",
+					"ColorPickerGridView.swift",
 					"CoreCompletionStatsAdapter.swift",
 					"CoreHabitStatsAdapter.swift",
 					"DayDetailView.swift",
@@ -767,6 +772,7 @@
 					"HabitStatisticsViewModel.swift",
 					"HabitStreakSummaryView.swift",
 					"HabitStreakSummaryViewModel.swift",
+					"IconPickerView.swift",
 					"MonthlyCalendarView.swift",
 					"NoteDraft.swift",
 					"NoteEditorView.swift",
@@ -832,6 +838,11 @@
 				XROS_DEPLOYMENT_TARGET = 26.0;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) BASIC";
 				EXCLUDED_SOURCE_FILE_NAMES = (
+					"Category.swift",
+					"CategoryFormView.swift",
+					"CategoryManagementView.swift",
+					"CategoryStorage.swift",
+					"ColorPickerGridView.swift",
 					"CoreCompletionStatsAdapter.swift",
 					"CoreHabitStatsAdapter.swift",
 					"DayDetailView.swift",
@@ -845,6 +856,7 @@
 					"HabitCategoryStorage.swift",
 					"HabitCategoryViewModel.swift",
 					"HabitCompletionRecord.swift",
+					"IconPickerView.swift",
 					"HabitNote.swift",
 					"HabitNoteDetailView.swift",
 					"HabitNotePlugin.swift",
@@ -1010,13 +1022,18 @@
 				XROS_DEPLOYMENT_TARGET = 26.0;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PLUGIN_NOTES";
 				EXCLUDED_SOURCE_FILE_NAMES = (
+					"Category.swift",
+					"CategoryFilterBar.swift",
+					"CategoryFormView.swift",
+					"CategoryManagementView.swift",
+					"CategoryStorage.swift",
+					"CategorySummaryView.swift",
+					"ColorPickerGridView.swift",
 					"CoreCompletionStatsAdapter.swift",
 					"CoreHabitStatsAdapter.swift",
 					"DayDetailView.swift",
 					"HabitBreakdownRowView.swift",
 					"HabitCategoryAssignment.swift",
-					"CategoryFilterBar.swift",
-					"CategorySummaryView.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -1029,6 +1046,7 @@
 					"HabitStatisticsViewModel.swift",
 					"HabitStreakSummaryView.swift",
 					"HabitStreakSummaryViewModel.swift",
+					"IconPickerView.swift",
 					"MonthlyCalendarView.swift",
 					"RecapDetailScreen.swift",
 					"RecapDetailViewModel.swift",
@@ -1090,13 +1108,18 @@
 				XROS_DEPLOYMENT_TARGET = 26.0;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PLUGIN_NOTES";
 				EXCLUDED_SOURCE_FILE_NAMES = (
+					"Category.swift",
+					"CategoryFilterBar.swift",
+					"CategoryFormView.swift",
+					"CategoryManagementView.swift",
+					"CategoryStorage.swift",
+					"CategorySummaryView.swift",
+					"ColorPickerGridView.swift",
 					"CoreCompletionStatsAdapter.swift",
 					"CoreHabitStatsAdapter.swift",
 					"DayDetailView.swift",
 					"HabitBreakdownRowView.swift",
 					"HabitCategoryAssignment.swift",
-					"CategoryFilterBar.swift",
-					"CategorySummaryView.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -1109,6 +1132,7 @@
 					"HabitStatisticsViewModel.swift",
 					"HabitStreakSummaryView.swift",
 					"HabitStreakSummaryViewModel.swift",
+					"IconPickerView.swift",
 					"MonthlyCalendarView.swift",
 					"RecapDetailScreen.swift",
 					"RecapDetailViewModel.swift",

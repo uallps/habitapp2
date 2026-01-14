@@ -2,68 +2,109 @@
 import SwiftUI
 
 /// Vista de detalle para seleccionar la categoría de un hábito.
-/// Muestra un picker con todas las categorías disponibles,
+/// Muestra un picker con todas las categorías disponibles (personalizadas),
 /// incluyendo icono, color y descripción de cada una.
 struct HabitCategoryDetailView: View {
     @ObservedObject var viewModel: HabitCategoryViewModel
+    @State private var showCategoryManagement = false
 
-    private var selectedCategory: Binding<HabitCategory> {
+    private var selectedCategoryId: Binding<UUID?> {
         Binding(
-            get: { viewModel.currentCategory ?? .wellness },
-            set: { viewModel.select($0) }
+            get: { viewModel.currentCategory?.id },
+            set: { newId in
+                if let id = newId,
+                   let category = viewModel.availableCategories.first(where: { $0.id == id }) {
+                    viewModel.select(category)
+                }
+            }
         )
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker(selection: selectedCategory) {
-                ForEach(HabitCategory.allCases) { category in
-                    CategoryPickerRow(category: category)
-                        .tag(category)
-                }
-            } label: {
+            if viewModel.loadingState == .loading {
                 HStack {
-                    Image(systemName: selectedCategory.wrappedValue.icon)
-                        .foregroundColor(selectedCategory.wrappedValue.color)
-                        .frame(width: 24)
-                    Text("Categoría")
-                }
-            }
-            .accessibilityHint("Selecciona una categoría para organizar este hábito")
-
-            // Mostrar descripción de la categoría seleccionada
-            if viewModel.loadingState == .loaded {
-                HStack {
-                    Text(selectedCategory.wrappedValue.description)
-                        .font(.caption)
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text("Cargando...")
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
-                    Spacer()
-                    if viewModel.isSaving {
-                        ProgressView()
-                            .scaleEffect(0.7)
+                }
+            } else {
+                Picker(selection: selectedCategoryId) {
+                    ForEach(viewModel.availableCategories) { category in
+                        CategoryPickerRow(category: category)
+                            .tag(category.id as UUID?)
+                    }
+                } label: {
+                    HStack {
+                        if let current = viewModel.currentCategory {
+                            Image(systemName: current.emoji)
+                                .foregroundColor(current.color)
+                                .frame(width: 24)
+                        }
+                        Text("Categoría")
                     }
                 }
-                .padding(.top, 4)
-                .animation(.easeInOut(duration: 0.2), value: selectedCategory.wrappedValue)
+                .accessibilityHint("Selecciona una categoría para organizar este hábito")
+
+                // Mostrar descripción de la categoría seleccionada
+                if viewModel.loadingState == .loaded, let current = viewModel.currentCategory {
+                    HStack {
+                        Text(current.categoryDescription)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        if viewModel.isSaving {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        }
+                    }
+                    .padding(.top, 4)
+                    .animation(.easeInOut(duration: 0.2), value: current.id)
+                }
+
+                // Botón para gestionar categorías
+                Button {
+                    showCategoryManagement = true
+                } label: {
+                    HStack {
+                        Image(systemName: "slider.horizontal.3")
+                        Text("Gestionar categorías")
+                            .font(.subheadline)
+                    }
+                    .foregroundColor(.accentColor)
+                }
+                .padding(.top, 8)
             }
+        }
+        .sheet(isPresented: $showCategoryManagement) {
+            CategoryManagementView()
+                .onDisappear {
+                    Task {
+                        await viewModel.refreshCategories()
+                    }
+                }
         }
     }
 }
 
 /// Fila del picker con icono, nombre y descripción de la categoría
 private struct CategoryPickerRow: View {
-    let category: HabitCategory
+    let category: Category
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: category.icon)
+            Image(systemName: category.emoji)
                 .foregroundColor(category.color)
                 .frame(width: 20)
             VStack(alignment: .leading, spacing: 2) {
-                Text(category.rawValue)
-                Text(category.description)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                Text(category.name)
+                if !category.categoryDescription.isEmpty {
+                    Text(category.categoryDescription)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
             Spacer()
         }
@@ -82,39 +123,6 @@ private struct CategoryPickerRow: View {
                 )
             }
         }
-    }
-}
-
-#Preview("Todas las categorías") {
-    NavigationStack {
-        List {
-            ForEach(HabitCategory.allCases) { category in
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: category.icon)
-                            .foregroundColor(category.color)
-                            .font(.title2)
-                        Text(category.rawValue)
-                            .font(.headline)
-                    }
-                    Text(category.description)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    HStack {
-                        ForEach(category.examples, id: \.self) { example in
-                            Text(example)
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(category.color.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-        }
-        .navigationTitle("Categorías")
     }
 }
 #endif
