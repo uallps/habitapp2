@@ -10,6 +10,9 @@ struct HabitListView: View {
 #if PREMIUM || PLUGIN_CATEGORIES
     @State private var selectedCategoryFilter: HabitCategory?
     @State private var filteredHabitIds: Set<UUID>?
+    @State private var categoryCounts: [HabitCategory: Int] = [:]
+    @State private var categoryProgress: [HabitCategory: CategoryProgress] = [:]
+    @State private var showCategorySummary: Bool = false
 #endif
 
     init(storageProvider: StorageProvider) {
@@ -22,10 +25,14 @@ struct HabitListView: View {
                 VStack(spacing: 0) {
 #if PREMIUM || PLUGIN_CATEGORIES
                     if appConfig.isCategoriesEnabled {
-                        CategoryFilterBar(selectedCategory: $selectedCategoryFilter)
-                            .onChange(of: selectedCategoryFilter) { _, newValue in
-                                Task { await updateCategoryFilter(newValue) }
-                            }
+                        CategoryFilterBar(
+                            selectedCategory: $selectedCategoryFilter,
+                            categoryCounts: categoryCounts,
+                            categoryProgress: categoryProgress
+                        )
+                        .onChange(of: selectedCategoryFilter) { _, newValue in
+                            Task { await updateCategoryFilter(newValue) }
+                        }
                     }
 #endif
                 List {
@@ -112,6 +119,17 @@ struct HabitListView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     EditButton()
                 }
+#if PREMIUM || PLUGIN_CATEGORIES
+                ToolbarItem(placement: .secondaryAction) {
+                    if appConfig.isCategoriesEnabled {
+                        Button {
+                            showCategorySummary = true
+                        } label: {
+                            Label("Resumen", systemImage: "chart.pie.fill")
+                        }
+                    }
+                }
+#endif
                 ToolbarItem(placement: .primaryAction) {
                     addHabitButton()
                 }
@@ -121,9 +139,26 @@ struct HabitListView: View {
                 }
 #endif
             }
+#if PREMIUM || PLUGIN_CATEGORIES
+            .sheet(isPresented: $showCategorySummary) {
+                CategorySummaryView()
+            }
+#endif
             .task {
                 await viewModel.loadHabits()
+#if PREMIUM || PLUGIN_CATEGORIES
+                if appConfig.isCategoriesEnabled {
+                    await loadCategoryCounts()
+                }
+#endif
             }
+#if PREMIUM || PLUGIN_CATEGORIES
+            .onChange(of: viewModel.habits.count) { _, _ in
+                if appConfig.isCategoriesEnabled {
+                    Task { await loadCategoryCounts() }
+                }
+            }
+#endif
         }
 #if PREMIUM || PLUGIN_CATEGORIES
         .onChange(of: appConfig.isCategoriesEnabled) { _, isEnabled in
@@ -215,6 +250,59 @@ struct HabitListView: View {
             print("Error loading category filter: \(error)")
             filteredHabitIds = nil
         }
+    }
+
+    private func loadCategoryCounts() async {
+        let storage = HabitCategorySwiftDataStorage()
+        do {
+            let assignments = try await storage.allAssignments()
+            // Crear mapa de hábitos activos
+            let activeHabits = viewModel.habits.filter { !$0.isArchived }
+            let habitMap = Dictionary(uniqueKeysWithValues: activeHabits.map { ($0.id, $0) })
+
+            var counts: [HabitCategory: Int] = [:]
+            var progress: [HabitCategory: (completed: Int, total: Int)] = [:]
+
+            for category in HabitCategory.allCases {
+                counts[category] = 0
+                progress[category] = (0, 0)
+            }
+
+            let today = Date()
+            for assignment in assignments {
+                guard let habit = habitMap[assignment.habitId] else { continue }
+
+                let category = assignment.categoryValue
+                counts[category, default: 0] += 1
+
+                // Calcular progreso para hábitos programados hoy
+                if habit.isScheduled(on: today) {
+                    var current = progress[category] ?? (0, 0)
+                    current.total += 1
+
+                    // Verificar si está completado hoy
+                    if isHabitCompletedToday(habit, today: today) {
+                        current.completed += 1
+                    }
+                    progress[category] = current
+                }
+            }
+
+            categoryCounts = counts
+            categoryProgress = progress.mapValues {
+                CategoryProgress(completed: $0.completed, total: $0.total)
+            }
+        } catch {
+            print("Error loading category counts: \(error)")
+        }
+    }
+
+    /// Verifica si un hábito fue completado hoy
+    private func isHabitCompletedToday(_ habit: Habit, today: Date) -> Bool {
+        guard habit.isCompletedToday, let lastCompletion = habit.lastCompletionDate else {
+            return false
+        }
+        return Calendar.current.isDate(lastCompletion, inSameDayAs: today)
     }
 #endif
 }

@@ -23,8 +23,17 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
 
     func save(_ assignment: HabitCategoryAssignment) async throws {
         guard let context else { return }
-        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == assignment.habitId })
-        if try context.fetch(descriptor).isEmpty {
+        let habitId = assignment.habitId
+        let descriptor = FetchDescriptor<HabitCategoryAssignment>(
+            predicate: #Predicate { $0.habitId == habitId }
+        )
+        let existing = try context.fetch(descriptor)
+
+        if let existingAssignment = existing.first {
+            // Actualizar registro existente
+            existingAssignment.category = assignment.category
+        } else {
+            // Insertar nuevo registro
             context.insert(assignment)
         }
         try context.save()

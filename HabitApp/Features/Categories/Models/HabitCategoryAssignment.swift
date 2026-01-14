@@ -41,7 +41,8 @@ final class HabitCategoryAssignment: Identifiable, Codable {
 }
 
 /// Categorías predefinidas para clasificar hábitos.
-/// Cada categoría tiene un nombre localizado, un icono SF Symbol y un color distintivo.
+/// Cada categoría tiene un nombre localizado, un icono SF Symbol, un color distintivo
+/// y una descripción que ayuda al usuario a entender qué tipo de hábitos incluir.
 enum HabitCategory: String, CaseIterable, Identifiable, Codable {
     /// Hábitos de autocuidado y bienestar personal
     case wellness = "Bienestar"
@@ -56,6 +57,7 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
 
     var id: String { rawValue }
 
+    /// Convierte un string (rawValue o nombre en inglés) a HabitCategory
     static func from(rawValue: String) -> HabitCategory {
         switch rawValue {
         case Self.wellness.rawValue, "wellness":
@@ -73,6 +75,7 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    /// Icono SF Symbol representativo de la categoría
     var icon: String {
         switch self {
         case .wellness: return "sparkles"
@@ -83,6 +86,7 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
         }
     }
 
+    /// Color distintivo de la categoría
     var color: Color {
         switch self {
         case .wellness: return .purple
@@ -91,6 +95,43 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
         case .productivity: return .orange
         case .other: return .gray
         }
+    }
+
+    /// Descripción breve de qué tipo de hábitos pertenecen a esta categoría
+    var description: String {
+        switch self {
+        case .wellness:
+            return "Meditación, mindfulness, autocuidado"
+        case .health:
+            return "Ejercicio, alimentación, sueño"
+        case .learning:
+            return "Lectura, cursos, idiomas"
+        case .productivity:
+            return "Organización, trabajo, metas"
+        case .other:
+            return "Hábitos diversos"
+        }
+    }
+
+    /// Ejemplos de hábitos comunes en esta categoría
+    var examples: [String] {
+        switch self {
+        case .wellness:
+            return ["Meditar 10 min", "Escribir diario", "Agradecer"]
+        case .health:
+            return ["Hacer ejercicio", "Beber 2L agua", "Dormir 8h"]
+        case .learning:
+            return ["Leer 30 min", "Practicar inglés", "Ver tutorial"]
+        case .productivity:
+            return ["Planificar día", "Revisar tareas", "Inbox zero"]
+        case .other:
+            return ["Llamar familia", "Regar plantas", "Pasear mascota"]
+        }
+    }
+
+    /// Label de accesibilidad para VoiceOver
+    var accessibilityLabel: String {
+        "\(rawValue): \(description)"
     }
 }
 #endif
