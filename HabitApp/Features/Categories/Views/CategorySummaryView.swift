@@ -2,7 +2,11 @@
 import SwiftUI
 import SwiftData
 import Combine
+#if os(iOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 /// Vista de resumen que muestra todas las categorías con estadísticas.
 /// Presenta una visión general del progreso de hábitos organizados por categoría.
@@ -49,7 +53,7 @@ struct CategorySummaryView: View {
                 }
                 .padding(.vertical)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(Color.adaptiveSystemGroupedBackground)
             .navigationTitle("Resumen")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -124,7 +128,7 @@ struct CategorySummaryView: View {
             }
         }
         .padding()
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .background(Color.adaptiveSecondarySystemGroupedBackground)
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
@@ -241,7 +245,7 @@ private struct CategoryStatCard: View {
             }
         }
         .padding()
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .background(Color.adaptiveSecondarySystemGroupedBackground)
         .cornerRadius(14)
         .shadow(color: .black.opacity(0.02), radius: 4, x: 0, y: 2)
         .scaleEffect(isPressed ? 0.97 : 1)
@@ -369,6 +373,28 @@ final class CategorySummaryViewModel: ObservableObject {
             return false
         }
         return Calendar.current.isDate(lastCompletion, inSameDayAs: today)
+    }
+}
+
+private extension Color {
+    static var adaptiveSystemGroupedBackground: Color {
+        #if os(iOS)
+        return Color(uiColor: .systemGroupedBackground)
+        #elseif os(macOS)
+        return Color(nsColor: .windowBackgroundColor)
+        #else
+        return .secondary
+        #endif
+    }
+
+    static var adaptiveSecondarySystemGroupedBackground: Color {
+        #if os(iOS)
+        return Color(uiColor: .secondarySystemGroupedBackground)
+        #elseif os(macOS)
+        return Color(nsColor: .controlBackgroundColor)
+        #else
+        return .secondary
+        #endif
     }
 }
 
