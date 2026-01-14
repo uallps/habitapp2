@@ -1,22 +1,24 @@
-﻿import Foundation
+import Foundation
 import SwiftData
 
 @Model
 final class HabitNote: Identifiable, Codable {
-    private enum CodingKeys: CodingKey { case id, habitId, date, text, dayIdentifier }
+    private enum CodingKeys: CodingKey { case id, habitId, date, text, dayIdentifier, mood }
 
     private(set) var id: UUID
     var habitId: UUID
     var date: Date
     var text: String
     var dayIdentifier: String
+    var mood: Int
 
-    init(habitId: UUID, date: Date = Date(), text: String = "") {
+    init(habitId: UUID, date: Date = Date(), text: String = "", mood: Int = 3) {
         self.id = UUID()
         self.habitId = habitId
         self.date = date
         self.text = text
         self.dayIdentifier = HabitNote.formatter.string(from: date)
+        self.mood = mood
     }
 
     func update(date: Date) {
@@ -32,6 +34,21 @@ final class HabitNote: Identifiable, Codable {
         return formatter
     }()
 
+    var moodLabel: String { Self.label(for: mood) }
+
+    static func label(for mood: Int) -> String {
+        switch mood {
+        case 1, 2:
+            return "Bajo"
+        case 3:
+            return "Medio"
+        case 4, 5:
+            return "Alto"
+        default:
+            return "Medio"
+        }
+    }
+
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
@@ -39,6 +56,7 @@ final class HabitNote: Identifiable, Codable {
         date = try container.decode(Date.self, forKey: .date)
         text = try container.decode(String.self, forKey: .text)
         dayIdentifier = try container.decode(String.self, forKey: .dayIdentifier)
+        mood = try container.decodeIfPresent(Int.self, forKey: .mood) ?? 3
     }
 
     func encode(to encoder: Encoder) throws {
@@ -48,6 +66,6 @@ final class HabitNote: Identifiable, Codable {
         try container.encode(date, forKey: .date)
         try container.encode(text, forKey: .text)
         try container.encode(dayIdentifier, forKey: .dayIdentifier)
+        try container.encode(mood, forKey: .mood)
     }
 }
-

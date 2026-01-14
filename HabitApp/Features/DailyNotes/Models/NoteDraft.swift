@@ -5,5 +5,5 @@ struct NoteDraft: Identifiable {
     var habitId: UUID? = nil
     var date: Date = Date()
     var text: String = ""
+    var mood: Int = 3
 }
-

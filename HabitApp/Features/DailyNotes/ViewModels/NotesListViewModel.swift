@@ -35,7 +35,7 @@ final class NotesListViewModel: ObservableObject {
     }
 
     func edit(note: HabitNote) {
-        draft = NoteDraft(id: note.id, habitId: note.habitId, date: note.date, text: note.text)
+        draft = NoteDraft(id: note.id, habitId: note.habitId, date: note.date, text: note.text, mood: note.mood)
         editingNote = note
         isPresentingEditor = true
     }
@@ -46,10 +46,11 @@ final class NotesListViewModel: ObservableObject {
             if let existing = editingNote {
                 existing.habitId = habitId
                 existing.text = draft.text
+                existing.mood = draft.mood
                 existing.update(date: draft.date)
                 try await noteStorage.save(existing)
             } else {
-                let note = HabitNote(habitId: habitId, date: draft.date, text: draft.text)
+                let note = HabitNote(habitId: habitId, date: draft.date, text: draft.text, mood: draft.mood)
                 try await noteStorage.save(note)
             }
             editingNote = nil
@@ -87,4 +88,3 @@ final class NotesListViewModel: ObservableObject {
         return habits.first(where: { $0.id == habitId })?.name ?? "Habito desconocido"
     }
 }
-
