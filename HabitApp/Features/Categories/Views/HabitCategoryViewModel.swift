@@ -32,7 +32,7 @@ final class HabitCategoryViewModel: ObservableObject {
         if assignment == nil {
             assignment = HabitCategoryAssignment(habitId: habit.id, category: category)
         } else {
-            assignment?.category = category
+            assignment?.categoryValue = category
         }
         Task { await persist() }
     }
@@ -47,7 +47,7 @@ final class HabitCategoryViewModel: ObservableObject {
     }
 
     var currentCategory: HabitCategory? {
-        assignment?.category
+        assignment?.categoryValue
     }
 }
 #endif

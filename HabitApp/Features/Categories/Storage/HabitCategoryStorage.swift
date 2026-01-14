@@ -50,7 +50,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         guard let context else { return [] }
         let categoryRaw = category.rawValue
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.category.rawValue == categoryRaw }
+            predicate: #Predicate { $0.category == categoryRaw }
         )
         let assignments = try context.fetch(descriptor)
         return Set(assignments.map { $0.habitId })

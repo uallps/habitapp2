@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HabitListView: View {
+    @EnvironmentObject private var appConfig: AppConfig
     @StateObject private var viewModel: HabitListViewModel
     @State private var navigationPath: [UUID] = []
     @State private var newHabitId: UUID?
@@ -20,7 +21,7 @@ struct HabitListView: View {
             ZStack(alignment: .bottomTrailing) {
                 VStack(spacing: 0) {
 #if PREMIUM || PLUGIN_CATEGORIES
-                    if BuildFeatures.supportsCategories {
+                    if appConfig.isCategoriesEnabled {
                         CategoryFilterBar(selectedCategory: $selectedCategoryFilter)
                             .onChange(of: selectedCategoryFilter) { _, newValue in
                                 Task { await updateCategoryFilter(newValue) }
@@ -124,6 +125,14 @@ struct HabitListView: View {
                 await viewModel.loadHabits()
             }
         }
+#if PREMIUM || PLUGIN_CATEGORIES
+        .onChange(of: appConfig.isCategoriesEnabled) { _, isEnabled in
+            if !isEnabled {
+                selectedCategoryFilter = nil
+                filteredHabitIds = nil
+            }
+        }
+#endif
     }
 
     @ViewBuilder
@@ -212,6 +221,7 @@ struct HabitListView: View {
 
 #Preview {
     HabitListView(storageProvider: MockStorageProvider())
+        .environmentObject(AppConfig())
 }
 
 private struct ArchivedHabitRowView: View {
