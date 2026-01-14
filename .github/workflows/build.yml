@@ -17,14 +17,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [iOS]
+        platform: [iOS, macOS]
         scheme:
           - HabitAppBasic
           - HabitAppPremium
+          - HabitAppBasicNotes
+          - HabitAppBasicStats
+          - HabitAppBasicCategories
         include:
           - platform: iOS
             sdk: iphonesimulator
             destination: "platform=iOS Simulator,name=iPhone 15"
+          - platform: macOS
+            sdk: macosx
+            destination: "platform=macOS"
 
     steps:
       - name: Checkout
