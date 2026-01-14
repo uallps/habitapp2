@@ -99,3 +99,4 @@ struct MonthlyCalendarView: View {
         return Color.orange.opacity(0.25)
     }
 }
+

@@ -15,3 +15,4 @@ final class HabitCompletionRecord: Identifiable {
         self.count = count
     }
 }
+

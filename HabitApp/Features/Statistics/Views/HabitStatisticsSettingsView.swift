@@ -23,3 +23,4 @@ struct HabitStatisticsSettingsView: View {
     HabitStatisticsSettingsView()
         .environmentObject(AppConfig())
 }
+

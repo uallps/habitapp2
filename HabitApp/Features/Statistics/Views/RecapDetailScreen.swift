@@ -369,3 +369,4 @@ struct RecapDetailScreen: View {
         return formatter.string(from: date)
     }
 }
+

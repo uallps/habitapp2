@@ -42,3 +42,4 @@ struct NoteEditorView: View {
         }
     }
 }
+

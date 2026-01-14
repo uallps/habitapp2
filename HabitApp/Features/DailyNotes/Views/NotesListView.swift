@@ -82,3 +82,4 @@ struct NotesListView: View {
 #Preview {
     NotesListView(storageProvider: MockStorageProvider())
 }
+

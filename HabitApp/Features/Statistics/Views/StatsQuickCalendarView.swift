@@ -208,3 +208,4 @@ private struct MonthlyCalendarPreviewView: View {
         return Color.orange.opacity(0.25)
     }
 }
+

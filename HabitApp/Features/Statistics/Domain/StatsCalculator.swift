@@ -572,3 +572,4 @@ private struct StatsMetrics {
     let bestStreak: Int
     let topHabitName: String?
 }
+

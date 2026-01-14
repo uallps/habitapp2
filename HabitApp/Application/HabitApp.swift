@@ -16,7 +16,7 @@ struct HabitApp: App {
     }
 
     private var notesEnabled: Bool {
-        appConfig.isPremium && appConfig.enableDailyNotes
+        appConfig.isDailyNotesEnabled
     }
 
     private var pluginTabs: [PluginTabItem] {
@@ -32,6 +32,7 @@ struct HabitApp: App {
                 view: AnyView(HabitListView(storageProvider: storageProvider))
             )
         ]
+#if PREMIUM || PLUGIN_NOTES
         if notesEnabled {
             items.append(AppSidebarItem(
                 id: "notes",
@@ -40,6 +41,7 @@ struct HabitApp: App {
                 view: AnyView(NotesListView(storageProvider: storageProvider))
             ))
         }
+#endif
         for tab in pluginTabs {
             items.append(AppSidebarItem(
                 id: tab.id,
@@ -66,12 +68,14 @@ struct HabitApp: App {
                         Label("Habitos", systemImage: "checklist")
                     }
 
+#if PREMIUM || PLUGIN_NOTES
                 if notesEnabled {
                     NotesListView(storageProvider: storageProvider)
                         .tabItem {
                             Label("Notas", systemImage: "note.text")
                         }
                 }
+#endif
 
                 ForEach(pluginTabs) { tab in
                     tab.view

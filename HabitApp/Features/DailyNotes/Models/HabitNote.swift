@@ -50,3 +50,4 @@ final class HabitNote: Identifiable, Codable {
         try container.encode(dayIdentifier, forKey: .dayIdentifier)
     }
 }
+

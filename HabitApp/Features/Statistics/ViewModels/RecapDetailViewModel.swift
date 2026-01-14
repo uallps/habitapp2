@@ -73,3 +73,4 @@ struct StatsDayDetail {
     let expected: Int
     let habits: [StatsHabitDayStatus]
 }
+

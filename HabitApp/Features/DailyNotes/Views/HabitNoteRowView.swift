@@ -12,3 +12,4 @@ struct HabitNoteRowView: View {
         }
     }
 }
+

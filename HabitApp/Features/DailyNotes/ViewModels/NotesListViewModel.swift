@@ -87,3 +87,4 @@ final class NotesListViewModel: ObservableObject {
         return habits.first(where: { $0.id == habitId })?.name ?? "Habito desconocido"
     }
 }
+

@@ -45,3 +45,4 @@ struct DayDetailView: View {
         return formatter.string(from: detail.date)
     }
 }
+

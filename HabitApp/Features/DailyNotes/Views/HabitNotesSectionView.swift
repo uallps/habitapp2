@@ -85,3 +85,4 @@ struct HabitNotesSectionView: View {
         .buttonStyle(.plain)
     }
 }
+

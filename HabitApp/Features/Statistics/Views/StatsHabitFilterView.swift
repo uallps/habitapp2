@@ -29,3 +29,4 @@ struct StatsHabitFilterView: View {
         habit.isArchived ? "\(habit.name) (Archivado)" : habit.name
     }
 }
+

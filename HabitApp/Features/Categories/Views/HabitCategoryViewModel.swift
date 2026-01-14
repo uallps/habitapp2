@@ -44,3 +44,4 @@ final class HabitCategoryViewModel: ObservableObject {
         assignment?.category
     }
 }
+

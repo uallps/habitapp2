@@ -25,3 +25,4 @@ struct StatisticsDashboardView: View {
 #Preview {
     StatisticsDashboardView(storageProvider: MockStorageProvider())
 }
+

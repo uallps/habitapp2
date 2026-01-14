@@ -11,7 +11,7 @@ final class HabitStatisticsPlugin: ViewPlugin, TabPlugin, DataPlugin, HabitEvent
     }
 
     var models: [any PersistentModel.Type] { [] }
-    var isEnabled: Bool { config.isPremium && config.enableStatistics }
+    var isEnabled: Bool { config.isStatisticsEnabled }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }
@@ -74,3 +74,4 @@ final class HabitStatisticsPlugin: ViewPlugin, TabPlugin, DataPlugin, HabitEvent
         HabitStatisticsSettingsView()
     }
 }
+

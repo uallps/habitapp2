@@ -19,3 +19,4 @@ struct HabitNoteDetailView: View {
         .frame(minHeight: 100)
     }
 }
+

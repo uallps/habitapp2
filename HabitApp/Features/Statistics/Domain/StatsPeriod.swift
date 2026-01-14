@@ -43,3 +43,4 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
         return calendar.isDate(interval.start, inSameDayAs: current.start)
     }
 }
+

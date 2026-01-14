@@ -51,3 +51,4 @@ struct BarChartView: View {
         return Color.orange.opacity(0.7)
     }
 }
+

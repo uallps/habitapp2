@@ -38,3 +38,4 @@ struct StatisticsDependencies {
     let completionDataSource: CompletionStatsDataSource
     let calendar: Calendar
 }
+

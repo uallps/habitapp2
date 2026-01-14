@@ -162,3 +162,4 @@ private enum PastHighlightType {
     case good
     case low
 }
+

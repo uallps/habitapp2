@@ -164,3 +164,4 @@ final class StatsOverviewViewModel: ObservableObject {
 struct StatsOverviewContent {
     let recaps: [StatsPeriod: StatsRecap]
 }
+

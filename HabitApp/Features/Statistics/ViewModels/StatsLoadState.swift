@@ -6,3 +6,4 @@ enum StatsLoadState<T> {
     case loaded(T)
     case error(String)
 }
+

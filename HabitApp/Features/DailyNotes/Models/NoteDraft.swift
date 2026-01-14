@@ -6,3 +6,4 @@ struct NoteDraft: Identifiable {
     var date: Date = Date()
     var text: String = ""
 }
+

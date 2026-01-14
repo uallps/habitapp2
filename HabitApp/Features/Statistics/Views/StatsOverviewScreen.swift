@@ -215,3 +215,4 @@ private struct EmptyStatsView: View {
         .padding(.vertical, 24)
     }
 }
+

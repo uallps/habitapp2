@@ -26,3 +26,4 @@ struct HabitStatisticsView: View {
         }
     }
 }
+

@@ -11,7 +11,7 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
     }
 
     var models: [any PersistentModel.Type] { [HabitCategoryAssignment.self] }
-    var isEnabled: Bool { config.isPremium && config.enableCategories }
+    var isEnabled: Bool { config.isCategoriesEnabled }
 
     func willDeleteHabit(_ habit: Habit) async {
         guard isEnabled else { return }
@@ -53,3 +53,4 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
         }
     }
 }
+

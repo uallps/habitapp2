@@ -49,3 +49,4 @@ enum HabitCategory: String, CaseIterable, Identifiable, Codable {
         }
     }
 }
+

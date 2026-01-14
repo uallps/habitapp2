@@ -14,3 +14,4 @@ struct HabitCategoryDetailView: View {
         }
     }
 }
+

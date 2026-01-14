@@ -73,3 +73,4 @@ struct StatsRecap {
     let highlights: [String]
     let primaryHighlight: String
 }
+
