@@ -745,6 +745,7 @@
 					"DayDetailView.swift",
 					"HabitBreakdownRowView.swift",
 					"HabitCategoryAssignment.swift",
+					"CategoryFilterBar.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -835,6 +836,7 @@
 					"DayDetailView.swift",
 					"HabitBreakdownRowView.swift",
 					"HabitCategoryAssignment.swift",
+					"CategoryFilterBar.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -1011,6 +1013,7 @@
 					"DayDetailView.swift",
 					"HabitBreakdownRowView.swift",
 					"HabitCategoryAssignment.swift",
+					"CategoryFilterBar.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -1089,6 +1092,7 @@
 					"DayDetailView.swift",
 					"HabitBreakdownRowView.swift",
 					"HabitCategoryAssignment.swift",
+					"CategoryFilterBar.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -1163,6 +1167,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PLUGIN_STATS";
 				EXCLUDED_SOURCE_FILE_NAMES = (
 					"HabitCategoryAssignment.swift",
+					"CategoryFilterBar.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
@@ -1226,6 +1231,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PLUGIN_STATS";
 				EXCLUDED_SOURCE_FILE_NAMES = (
 					"HabitCategoryAssignment.swift",
+					"CategoryFilterBar.swift",
 					"HabitCategoryDetailView.swift",
 					"HabitCategoryPlugin.swift",
 					"HabitCategoryRowView.swift",
