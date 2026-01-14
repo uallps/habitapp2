@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 import SwiftUI
 
 struct HabitCategoryDetailView: View {
@@ -54,4 +55,5 @@ private struct CategoryPickerRow: View {
         }
     }
 }
+#endif
 

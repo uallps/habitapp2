@@ -1,4 +1,5 @@
-﻿import Foundation
+#if PREMIUM || PLUGIN_CATEGORIES
+import Foundation
 import SwiftData
 
 @MainActor
@@ -55,4 +56,5 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         return Set(assignments.map { $0.habitId })
     }
 }
+#endif
 

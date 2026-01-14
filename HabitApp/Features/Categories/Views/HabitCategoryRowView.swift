@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 import SwiftUI
 
 /// Vista compacta que muestra la categoría de un hábito como badge colorido.
@@ -45,4 +46,5 @@ struct CategoryBadge: View {
     }
     .padding()
 }
+#endif
 

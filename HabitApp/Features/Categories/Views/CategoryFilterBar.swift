@@ -1,3 +1,4 @@
+#if PREMIUM || PLUGIN_CATEGORIES
 import SwiftUI
 
 /// Barra de filtrado horizontal por categorias.
@@ -69,3 +70,4 @@ private struct FilterChip: View {
         CategoryFilterBar(selectedCategory: .constant(.health))
     }
 }
+#endif
