@@ -16,7 +16,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     var context: ModelContext? { SwiftDataContext.shared }
 
     func category(for habitId: UUID) async throws -> HabitCategoryAssignment? {
-        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg))
+        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == habitId })
         return try context.fetch(descriptor).first
     }
 
@@ -24,7 +24,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         guard let context else { return }
         let habitId = assignment.habitId
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg)
+            predicate: #Predicate { $0.habitId == habitId }
         )
         let existing = try context.fetch(descriptor)
 
@@ -40,8 +40,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     }
 
     func delete(for habitId: UUID) async throws {
-        guard let context else { return }
-        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg))
+        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == habitId })
         let assignments = try context.fetch(descriptor)
         for assignment in assignments { context.delete(assignment) }
         if !assignments.isEmpty {
@@ -59,7 +58,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         guard let context else { return [] }
         let categoryRaw = category.rawValue
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: NSPredicate(format: "legacyCategory == %@", categoryRaw)
+            predicate: #Predicate { $0.legacyCategory == categoryRaw }
         )
         let assignments = try context.fetch(descriptor)
         return Set(assignments.map { $0.habitId })
