@@ -21,7 +21,7 @@ final class HabitSwiftDataStorageProvider: StorageProvider {
     }
 
     func loadHabits() async throws -> [Habit] {
-        let descriptor = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.createdAt)])
+        let descriptor = FetchDescriptor<Habit>(sortBy: [SortDescriptor("createdAt")])
         return try context.fetch(descriptor)
     }
 

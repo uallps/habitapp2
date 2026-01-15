@@ -93,4 +93,3 @@ private struct CategorySettingsSection: View {
         }
     }
 }
-#endif

@@ -16,8 +16,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     var context: ModelContext? { SwiftDataContext.shared }
 
     func category(for habitId: UUID) async throws -> HabitCategoryAssignment? {
-        guard let context else { return nil }
-        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == habitId })
+        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg))
         return try context.fetch(descriptor).first
     }
 
@@ -25,7 +24,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         guard let context else { return }
         let habitId = assignment.habitId
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.habitId == habitId }
+            predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg)
         )
         let existing = try context.fetch(descriptor)
 
@@ -42,7 +41,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
 
     func delete(for habitId: UUID) async throws {
         guard let context else { return }
-        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == habitId })
+        let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg))
         let assignments = try context.fetch(descriptor)
         for assignment in assignments { context.delete(assignment) }
         if !assignments.isEmpty {
@@ -60,7 +59,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         guard let context else { return [] }
         let categoryRaw = category.rawValue
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.legacyCategory == categoryRaw }
+            predicate: NSPredicate(format: "legacyCategory == %@", categoryRaw)
         )
         let assignments = try context.fetch(descriptor)
         return Set(assignments.map { $0.habitId })

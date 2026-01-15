@@ -38,7 +38,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
     func allCategories() async throws -> [Category] {
         guard let context else { return [] }
         let descriptor = FetchDescriptor<Category>(
-            sortBy: [SortDescriptor(\.sortOrder, order: .forward)]
+            sortBy: [SortDescriptor("sortOrder", order: .forward)]
         )
         return try context.fetch(descriptor)
     }
@@ -46,7 +46,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
     func category(for id: UUID) async throws -> Category? {
         guard let context else { return nil }
         let descriptor = FetchDescriptor<Category>(
-            predicate: #Predicate { $0.id == id }
+            predicate: NSPredicate(format: "id == %@", id as CVarArg)
         )
         return try context.fetch(descriptor).first
     }
@@ -55,9 +55,8 @@ final class CategorySwiftDataStorage: CategoryStorage {
         guard let context else { return }
         let categoryId = category.id
 
-        // Buscar si ya existe
         let descriptor = FetchDescriptor<Category>(
-            predicate: #Predicate { $0.id == categoryId }
+            predicate: NSPredicate(format: "id == %@", categoryId as CVarArg)
         )
         let existing = try context.fetch(descriptor)
 
@@ -78,7 +77,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
     func delete(categoryId: UUID) async throws {
         guard let context else { return }
         let descriptor = FetchDescriptor<Category>(
-            predicate: #Predicate { $0.id == categoryId }
+            predicate: NSPredicate(format: "id == %@", categoryId as CVarArg)
         )
         let categories = try context.fetch(descriptor)
         for category in categories {
@@ -109,8 +108,8 @@ final class CategorySwiftDataStorage: CategoryStorage {
     func defaultCategory() async throws -> Category? {
         guard let context else { return nil }
         let descriptor = FetchDescriptor<Category>(
-            predicate: #Predicate { $0.isDefault == true },
-            sortBy: [SortDescriptor(\.sortOrder, order: .forward)]
+            predicate: NSPredicate(format: "isDefault == true"),
+            sortBy: [SortDescriptor("sortOrder", order: .forward)]
         )
         return try context.fetch(descriptor).first
     }
@@ -118,7 +117,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
     func category(byName name: String) async throws -> Category? {
         guard let context else { return nil }
         let descriptor = FetchDescriptor<Category>(
-            predicate: #Predicate { $0.name == name }
+            predicate: NSPredicate(format: "name == %@", name)
         )
         return try context.fetch(descriptor).first
     }
@@ -126,7 +125,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
     func habitCount(for categoryId: UUID) async throws -> Int {
         guard let context else { return 0 }
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.categoryId == categoryId }
+            predicate: NSPredicate(format: "categoryId == %@", categoryId as CVarArg)
         )
         return try context.fetchCount(descriptor)
     }
@@ -140,7 +139,7 @@ extension HabitCategorySwiftDataStorage {
         guard let context else { return }
 
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.habitId == habitId }
+            predicate: NSPredicate(format: "habitId == %@", habitId as CVarArg)
         )
         let existing = try context.fetch(descriptor)
 
@@ -182,7 +181,7 @@ extension HabitCategorySwiftDataStorage {
     func assignments(for categoryId: UUID) async throws -> [HabitCategoryAssignment] {
         guard let context else { return [] }
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.categoryId == categoryId }
+            predicate: NSPredicate(format: "categoryId == %@", categoryId as CVarArg)
         )
         return try context.fetch(descriptor)
     }
@@ -192,7 +191,7 @@ extension HabitCategorySwiftDataStorage {
         guard let context else { return }
 
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.categoryId == sourceCategoryId }
+            predicate: NSPredicate(format: "categoryId == %@", sourceCategoryId as CVarArg)
         )
         let assignments = try context.fetch(descriptor)
 
