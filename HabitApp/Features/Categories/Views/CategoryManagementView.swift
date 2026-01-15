@@ -1,6 +1,7 @@
 #if PREMIUM || PLUGIN_CATEGORIES
 import SwiftUI
 import SwiftData
+import Combine
 
 /// Vista principal para gestionar categorías.
 /// Permite ver, crear, editar y eliminar categorías personalizadas.

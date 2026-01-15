@@ -1,3 +1,10 @@
+//
+//  Category.swift
+//  HabitApp
+//
+//  Created by Valentin SCHERER on 04/09/2023.
+//
+
 #if PREMIUM || PLUGIN_CATEGORIES
 import Foundation
 import SwiftData
@@ -161,15 +168,15 @@ extension Color {
         #if os(iOS)
         guard let components = UIColor(self).cgColor.components else { return "#808080" }
         #elseif os(macOS)
-        guard let cgColor = NSColor(self).cgColor,
+        guard let cgColor = NSColor(self).cgColor as CGColor?,
               let components = cgColor.components else { return "#808080" }
         #endif
 
-        let r = Int((components[0] * 255).rounded())
-        let g = Int((components[safe: 1] ?? 0) * 255).rounded()
-        let b = Int((components[safe: 2] ?? 0) * 255).rounded()
+        let r = Int(components[0] * 255)
+        let g = Int((components[safe: 1] ?? 0) * 255)
+        let b = Int((components[safe: 2] ?? 0) * 255)
 
-        return String(format: "#%02X%02X%02X", r, Int(g), Int(b))
+        return String(format: "#%02X%02X%02X", r, g, b)
     }
 }
 
@@ -294,7 +301,7 @@ enum CategoryEmoji: String, CaseIterable, Identifiable {
             return "Productividad"
         case .person, .people, .message, .phone, .house:
             return "Social"
-        case .paintbrush, .music, .camera, .gamecontroller, .theatermasks:
+        case .paintbrush, .music, .camera,.gamecontroller, .theatermasks:
             return "Creatividad"
         case .dollarsign, .creditcard, .chart, .bag, .cart:
             return "Finanzas"
@@ -304,3 +311,4 @@ enum CategoryEmoji: String, CaseIterable, Identifiable {
     }
 }
 #endif
+

@@ -1,10 +1,10 @@
-#if PREMIUM || PLUGIN_CATEGORIES
+
 import Foundation
 import SwiftUI
 import SwiftData
 
 @MainActor
-final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
+final class HabitCategoryPlugin: DataPlugin, ViewPlugin, TabPlugin {
     private let config: AppConfig
 
     init(config: AppConfig) {
@@ -42,6 +42,17 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin {
     @ViewBuilder
     func settingsView() -> some View {
         CategorySettingsSection(config: config)
+    }
+
+    func tabItem() -> PluginTabItem? {
+        guard isEnabled else { return nil }
+        return PluginTabItem(
+            id: "categories-summary",
+            title: "Categorías",
+            systemImage: "folder",
+            view: AnyView(CategorySummaryView()),
+            order: 2
+        )
     }
 }
 
@@ -83,4 +94,3 @@ private struct CategorySettingsSection: View {
     }
 }
 #endif
-

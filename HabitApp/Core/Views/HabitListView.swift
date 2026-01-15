@@ -25,7 +25,7 @@ struct HabitListView: View {
                 VStack(spacing: 0) {
 #if PREMIUM || PLUGIN_CATEGORIES
                     if appConfig.isCategoriesEnabled {
-                        CategoryFilterBar(
+                        LegacyCategoryFilterBar(
                             selectedCategory: $selectedCategoryFilter,
                             categoryCounts: categoryCounts,
                             categoryProgress: categoryProgress
@@ -270,9 +270,8 @@ struct HabitListView: View {
 
             let today = Date()
             for assignment in assignments {
-                guard let habit = habitMap[assignment.habitId] else { continue }
-
-                let category = assignment.categoryValue
+                guard let habit = habitMap[assignment.habitId],
+                      let category = assignment.legacyCategoryValue else { continue }
                 counts[category, default: 0] += 1
 
                 // Calcular progreso para hábitos programados hoy

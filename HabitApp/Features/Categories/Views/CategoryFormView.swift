@@ -1,5 +1,6 @@
 #if PREMIUM || PLUGIN_CATEGORIES
 import SwiftUI
+import Combine
 
 /// Vista de formulario para crear o editar una categoría.
 /// Permite configurar nombre, icono, color y descripción.
@@ -274,3 +275,4 @@ final class CategoryFormViewModel: ObservableObject {
     }
 }
 #endif
+

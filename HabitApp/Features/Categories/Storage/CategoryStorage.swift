@@ -37,7 +37,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
 
     func allCategories() async throws -> [Category] {
         guard let context else { return [] }
-        var descriptor = FetchDescriptor<Category>(
+        let descriptor = FetchDescriptor<Category>(
             sortBy: [SortDescriptor(\.sortOrder, order: .forward)]
         )
         return try context.fetch(descriptor)

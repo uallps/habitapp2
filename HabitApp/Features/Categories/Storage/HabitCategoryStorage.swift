@@ -13,7 +13,7 @@ protocol HabitCategoryStorage {
 
 @MainActor
 final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
-    private var context: ModelContext? { SwiftDataContext.shared }
+    var context: ModelContext? { SwiftDataContext.shared }
 
     func category(for habitId: UUID) async throws -> HabitCategoryAssignment? {
         guard let context else { return nil }
@@ -31,7 +31,8 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
 
         if let existingAssignment = existing.first {
             // Actualizar registro existente
-            existingAssignment.category = assignment.category
+            existingAssignment.categoryId = assignment.categoryId
+            existingAssignment.legacyCategory = assignment.legacyCategory
         } else {
             // Insertar nuevo registro
             context.insert(assignment)
@@ -59,7 +60,7 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         guard let context else { return [] }
         let categoryRaw = category.rawValue
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
-            predicate: #Predicate { $0.category == categoryRaw }
+            predicate: #Predicate { $0.legacyCategory == categoryRaw }
         )
         let assignments = try context.fetch(descriptor)
         return Set(assignments.map { $0.habitId })
