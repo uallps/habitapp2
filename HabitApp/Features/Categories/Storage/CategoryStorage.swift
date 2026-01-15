@@ -127,7 +127,7 @@ final class CategorySwiftDataStorage: CategoryStorage {
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
             predicate: #Predicate { $0.categoryId == categoryId }
         )
-        return try context.fetchCount(descriptor)
+        return try try context.fetchCount(descriptor)
     }
 }
 

@@ -60,7 +60,6 @@ final class HabitCategoryPlugin: DataPlugin, ViewPlugin, TabPlugin {
 private struct CategorySettingsSection: View {
     @ObservedObject var config: AppConfig
     @State private var showCategoryManagement = false
-    var isEnabled: Bool { config.isCategoriesEnabled }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

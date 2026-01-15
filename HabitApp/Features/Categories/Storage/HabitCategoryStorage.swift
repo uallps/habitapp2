@@ -2,7 +2,7 @@
 import Foundation
 import SwiftData
 
-@MainActor
+ @MainActor
 protocol HabitCategoryStorage {
     func category(for habitId: UUID) async throws -> HabitCategoryAssignment?
     func save(_ assignment: HabitCategoryAssignment) async throws
@@ -11,17 +11,19 @@ protocol HabitCategoryStorage {
     func habitIds(for category: HabitCategory) async throws -> Set<UUID>
 }
 
-@MainActor
+ @MainActor
 final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     var context: ModelContext? { SwiftDataContext.shared }
 
     func category(for habitId: UUID) async throws -> HabitCategoryAssignment? {
+        guard let context = context else { return nil }
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == habitId })
-        return try context.fetch(descriptor).first
+        let results = try context.fetch(descriptor)
+        return results.first
     }
 
     func save(_ assignment: HabitCategoryAssignment) async throws {
-        guard let context else { return }
+        guard let context = context else { return }
         let habitId = assignment.habitId
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
             predicate: #Predicate { $0.habitId == habitId }
@@ -29,17 +31,18 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
         let existing = try context.fetch(descriptor)
 
         if let existingAssignment = existing.first {
-            // Actualizar registro existente
+            // Update existing record
             existingAssignment.categoryId = assignment.categoryId
             existingAssignment.legacyCategory = assignment.legacyCategory
         } else {
-            // Insertar nuevo registro
+            // Insert new record
             context.insert(assignment)
         }
         try context.save()
     }
 
     func delete(for habitId: UUID) async throws {
+        guard let context = context else { return }
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(predicate: #Predicate { $0.habitId == habitId })
         let assignments = try context.fetch(descriptor)
         for assignment in assignments { context.delete(assignment) }
@@ -49,13 +52,13 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     }
 
     func allAssignments() async throws -> [HabitCategoryAssignment] {
-        guard let context else { return [] }
+        guard let context = context else { return [] }
         let descriptor = FetchDescriptor<HabitCategoryAssignment>()
         return try context.fetch(descriptor)
     }
 
     func habitIds(for category: HabitCategory) async throws -> Set<UUID> {
-        guard let context else { return [] }
+        guard let context = context else { return [] }
         let categoryRaw = category.rawValue
         let descriptor = FetchDescriptor<HabitCategoryAssignment>(
             predicate: #Predicate { $0.legacyCategory == categoryRaw }
@@ -65,4 +68,3 @@ final class HabitCategorySwiftDataStorage: HabitCategoryStorage {
     }
 }
 #endif
-
